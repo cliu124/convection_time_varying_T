@@ -22,7 +22,7 @@ timestepper = d3.RK222
 max_timestep = 0.1  # 0.125 to 0.1
 
 # Create bases and domain
-nx, ny, nz = 64, 96, 52 #54, 129, 42
+nx, ny, nz = 54, 129, 42 #54, 129, 42
 #nx, ny, nz = 192, 129, 160 # larger box. Kim Moin and Moser 
 
 coords = d3.CartesianCoordinates('x', 'y','z')
