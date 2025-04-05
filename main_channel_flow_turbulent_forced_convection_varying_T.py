@@ -112,7 +112,8 @@ snapshots_stress.add_task(xz_average(((u-xz_average(u))@ex)**2),name = 'u_prime_
 snapshots_stress.add_task(xz_average(((u-xz_average(u))@ey)**2),name = 'v_prime_v_prime')
 snapshots_stress.add_task(xz_average(((u-xz_average(u))@ez)**2),name = 'w_prime_w_prime')
 snapshots_stress.add_task(xz_average(((u-xz_average(u))@ex)*(u-xz_average(u))@ey),name = 'u_prime_v_prime')
-snapshots_stress.add_task(xz_average(T*(u@ey)),name = 'T_v_prime')
+snapshots_stress.add_task(xz_average(d3.grad(T)@ey),name = 'dTdy')
+snapshots_stress.add_task(xz_average(T),name = 'T')
 
 # CFL
 CFL = d3.CFL(solver, initial_dt=dt, cadence=5, safety=0.5, threshold=0.05,
@@ -123,7 +124,8 @@ CFL.add_velocity(u) # changed threshold from 0.05 to 0.01
 flow = d3.GlobalFlowProperty(solver, cadence=20) # changed cadence from 10 to 50
 flow.add_property(np.sqrt(u@u)/2, name='TKE')
 
-flow.add_property(vol_average(T*(u@ey)), name='Nu')
+flow.add_property(T, name='T')
+flow.add_property(d3.grad(T)@ey, name='dTdy')
 
 
 # Main loop
@@ -135,8 +137,9 @@ try:
         solver.step(timestep)
         if (solver.iteration-1) % 10 == 0:
             max_TKE = flow.max('TKE')
-            Nu = flow.max('Nu')
-            logger.info('Iteration=%i, Time=%e, dt=%e, max(TKE)=%f, Nu=%f' %(solver.iteration, solver.sim_time, timestep, max_TKE, Nu))
+            T = flow.max('T')
+            dTdy = flow.max('dTdy')
+            logger.info('Iteration=%i, Time=%e, dt=%e, max(TKE)=%f, max(T)=%f, max(dTdy)=%f' %(solver.iteration, solver.sim_time, timestep, max_TKE, T, dTdy))
 except:
     logger.error('Exception raised, triggering end of main loop.')
     raise
