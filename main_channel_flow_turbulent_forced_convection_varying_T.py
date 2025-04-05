@@ -9,7 +9,7 @@ Lx, Ly, Lz = (0.6*np.pi, 2.0, 0.18*np.pi)
 
 #Re = 16200 # U_b*H/nu
 Re=690
-Pr=7
+Pr=1
 
 A0=1
 A=0.1
@@ -67,7 +67,7 @@ problem.add_equation("dt(T) - 1/(Re*Pr)*div(grad_T) + lift(tau_T2) = - u@grad(T)
 problem.add_equation("u(y=-1) = 0") # change from -1 to -0.5
 problem.add_equation("u(y=+1) = 0") #change from 1 to 0.5
 problem.add_equation("integ(p) = 0")
-problem.add_equation("T(y=+1)=0")
+problem.add_equation("T(y=+1)=A0+A*sin(omega*t)")
 problem.add_equation("T(y=-1)=A0+A*sin(omega*t)")
 
 # Build Solver
