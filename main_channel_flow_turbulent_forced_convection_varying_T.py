@@ -67,7 +67,8 @@ problem.add_equation("dt(T) - 1/(Re*Pr)*div(grad_T) + lift(tau_T2) = - u@grad(T)
 problem.add_equation("u(y=-1) = 0") # change from -1 to -0.5
 problem.add_equation("u(y=+1) = 0") #change from 1 to 0.5
 problem.add_equation("integ(p) = 0")
-problem.add_equation("T(y=+1)=A0+A*sin(omega*t)")
+#problem.add_equation("T(y=+1)=A0+A*sin(omega*t)")
+problem.add_equation("T(y=+1)=0")
 problem.add_equation("T(y=-1)=A0+A*sin(omega*t)")
 
 # Build Solver
