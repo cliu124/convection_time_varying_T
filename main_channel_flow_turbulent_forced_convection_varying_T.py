@@ -8,7 +8,7 @@ Lx, Ly, Lz = (0.6*np.pi, 2.0, 0.18*np.pi)
 #Lx, Ly, Lz = (4.0*np.pi, 2.0, 2.0*np.pi)
 
 #Re = 16200 # U_b*H/nu
-Re=400
+Re=350
 Pr=1
 
 A0=1
@@ -29,7 +29,6 @@ coords = d3.CartesianCoordinates('x', 'y','z')
 dist = d3.Distributor(coords, dtype=np.float64)
 xbasis = d3.RealFourier(coords['x'], size=nx, bounds=(0, Lx), dealias=3/2)
 zbasis = d3.RealFourier(coords['z'], size=nz, bounds=(0, Lz), dealias=3/2)
-#ybasis = d3.Chebyshev(coords['y'], size=ny, bounds=(-Ly/2, Ly/2))
 ybasis = d3.Chebyshev(coords['y'], size=ny, bounds=(-Ly/2, Ly/2), dealias=3/2)
 
 # Fields
@@ -52,7 +51,6 @@ lift = lambda A: d3.Lift(A, lift_basis, -1) # Shortcut for multiplying by U_{N-1
 grad_u = d3.grad(u) - ey*lift(tau_u1) # Operator representing G
 grad_T = d3.grad(T) - ey*lift(tau_T1) # First-order reduction
 x_average = lambda A: d3.Average(A,'x')
-#xz_average =  lambda A: d3.Average(A,'z')
 xz_average = lambda A: d3.Average(d3.Average(A, 'x'), 'z')
 vol_average = lambda A: d3.Average(d3.Average(d3.Average(A, 'x'), 'z'),'y')
 
@@ -78,31 +76,14 @@ fh_mode = 'overwrite'
 solver = problem.build_solver(timestepper)
 solver.stop_sim_time = stop_sim_time
 
-# Initial conditions (this would be in dedalus 2)
-#u = solver.state['u']
-#uy = solver.state['uy']
-
-# Random perturbations, initialized globally for same results in parallel
-#gshape = domain.dist.grid_layout.global_shape(scales=1)
-#slices = domain.dist.grid_layout.slices(scales=1)
-#rand = np.random.RandomState(seed=42)
-#noise = rand.standard_normal(gshape)[slices]
-
-# Laminar solution + perturbations damped at walls
-#yb, yt = y_basis.interval
-#pert =  4e-1 * noise * (yt - y) * (y - yb)
-
 np.random.seed(0)
-u['g'][0] = (1-y**2) + np.random.randn(*u['g'][0].shape) * 1e-6*np.sin(np.pi*(y+1)*0.5) # Laminar solution (plane Poiseuille)+  random perturbation
-#u['g'][1] = np.random.randn(*u['g'][1].shape) * 1e-8*np.sin(np.pi*(y+1)*0.5) # Laminar solution (plane Poiseuille)+  random perturbation
+u['g'][0] = (1-y**2) 
 
-#u.set_scales(1/4, keep_data=True)
-#u['g'][0]
-#u.set_scales(1, keep_data=True)
-#u.differentiate('y', out=uy)
+#This is random noise to trigger transition to turbulence
+#+ np.random.randn(*u['g'][0].shape) * 1e-6*np.sin(np.pi*(y+1)*0.5) # Laminar solution (plane Poiseuille)+  random perturbation
 
-snapshots = solver.evaluator.add_file_handler('snapshots_channel', sim_dt=1, max_writes=600)
-#snapshots = solver.evaluator.add_file_handler('snapshots_channel', sim_dt=0.25)
+
+snapshots = solver.evaluator.add_file_handler('snapshots_channel', sim_dt=10, max_writes=600)
 
 snapshots.add_task(u, name='velocity')
 snapshots.add_task(T, name='temperature')
