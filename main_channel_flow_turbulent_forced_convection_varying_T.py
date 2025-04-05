@@ -104,6 +104,7 @@ snapshots = solver.evaluator.add_file_handler('snapshots_channel', sim_dt=1, max
 #snapshots = solver.evaluator.add_file_handler('snapshots_channel', sim_dt=0.25)
 
 snapshots.add_task(u, name='velocity')
+snapshots.add_task(T, name='temperature')
 
 snapshots_stress = solver.evaluator.add_file_handler('snapshots_channel_stress', sim_dt=1, max_writes=400)
 snapshots_stress.add_task(xz_average(u),name = 'ubar')
