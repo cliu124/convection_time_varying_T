@@ -8,7 +8,7 @@ Lx, Ly, Lz = (0.6*np.pi, 2.0, 0.18*np.pi)
 #Lx, Ly, Lz = (4.0*np.pi, 2.0, 2.0*np.pi)
 
 #Re = 16200 # U_b*H/nu
-Re=690
+Re=400
 Pr=1
 
 A0=1
