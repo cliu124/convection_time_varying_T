@@ -12,7 +12,7 @@ Re=350
 Pr=1
 
 A0=1
-A=0.1
+A=0.5
 omega=0.1
 
 #Retau = 180 # = u_tau*H/nu
@@ -22,7 +22,7 @@ timestepper = d3.RK222
 max_timestep = 0.1  # 0.125 to 0.1
 
 # Create bases and domain
-nx, ny, nz = 54, 129, 42 #54, 129, 42
+nx, ny, nz = 48, 64, 42 #54, 129, 42
 #nx, ny, nz = 192, 129, 160 # larger box. Kim Moin and Moser 
 
 coords = d3.CartesianCoordinates('x', 'y','z')
@@ -83,19 +83,21 @@ u['g'][0] = (1-y**2)
 #+ np.random.randn(*u['g'][0].shape) * 1e-6*np.sin(np.pi*(y+1)*0.5) # Laminar solution (plane Poiseuille)+  random perturbation
 
 
-snapshots = solver.evaluator.add_file_handler('snapshots_channel', sim_dt=10, max_writes=600)
+snapshots = solver.evaluator.add_file_handler('snapshots_channel', sim_dt=20, max_writes=600)
 
 snapshots.add_task(u, name='velocity')
 snapshots.add_task(T, name='temperature')
 
-snapshots_stress = solver.evaluator.add_file_handler('snapshots_channel_stress', sim_dt=1, max_writes=400)
+snapshots_stress = solver.evaluator.add_file_handler('snapshots_channel_stress', sim_dt=5, max_writes=400)
 snapshots_stress.add_task(xz_average(u),name = 'ubar')
 snapshots_stress.add_task(xz_average(((u-xz_average(u))@ex)**2),name = 'u_prime_u_prime')
 snapshots_stress.add_task(xz_average(((u-xz_average(u))@ey)**2),name = 'v_prime_v_prime')
 snapshots_stress.add_task(xz_average(((u-xz_average(u))@ez)**2),name = 'w_prime_w_prime')
 snapshots_stress.add_task(xz_average(((u-xz_average(u))@ex)*(u-xz_average(u))@ey),name = 'u_prime_v_prime')
-snapshots_stress.add_task(xz_average(d3.grad(T)@ey),name = 'dTdy')
-snapshots_stress.add_task(xz_average(T),name = 'T')
+
+snapshots_thermal = solver.evaluator.add_file_handler('snapshots_channel_thermal',sim_dt=0.1,max_writes=1000)
+snapshots_thermal.add_task(xz_average(d3.grad(T)@ey),name = 'dTdy')
+snapshots_thermal.add_task(xz_average(T),name = 'T')
 
 # CFL
 CFL = d3.CFL(solver, initial_dt=dt, cadence=5, safety=0.5, threshold=0.05,
