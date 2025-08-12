@@ -92,7 +92,7 @@ nu_T = lambda eta: (nu/2) * (
     * (1 - np.exp((np.abs(eta) - 1) * Re_tau / A))**2
 )**0.5 + nu/2
 
-dUdy = lambda eta: -Re_tau*eta/nu_T
+dUdy = lambda eta: -Re_tau*eta/nu_T(eta)
 
 from scipy.integrate import quad
 
