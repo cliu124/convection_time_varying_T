@@ -157,7 +157,7 @@ CFL.add_velocity(u) # changed threshold from 0.05 to 0.01
 
 # Flow properties
 flow = d3.GlobalFlowProperty(solver, cadence=20) # changed cadence from 10 to 50
-flow.add_property(np.sqrt(u@u)/2, name='TKE')
+flow.add_property(np.sqrt((u-xz_average(u))@(u-xz_average(u)))/2, name='TKE')
 
 flow.add_property(xz_average(T), name='T_bar')
 flow.add_property(xz_average(u@ex), name='u_bar')
