@@ -91,7 +91,7 @@ snapshots.add_task(T, name='temperature')
 
 #2D slicing from the 3D data, every sim_dt=1
 snapshots_2D = solver.evaluator.add_file_handler('snapshots_channel_2D',sim_dt=1,max_writes=4000)
-snapshots_2D.add_task(interp(u,x=0), name='u_yz')
+snapshots_2D.add_task(u(0,y,z), name='u_yz')
 #snapshots_2D.add_task(interp(u,z=0), name='u_xy')
 #snapshots_2D.add_task("interp(u,y=0)",layout="g", name='u_xz_mid')
 #snapshots_2D.add_task("interp(u,y=5/Re_tau)",layout="g", name='u_xz_viscous')
