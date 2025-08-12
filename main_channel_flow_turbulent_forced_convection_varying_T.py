@@ -79,7 +79,25 @@ solver = problem.build_solver(timestepper)
 solver.stop_sim_time = stop_sim_time
 
 np.random.seed(0)
-u['g'][0] = (1-y**2) 
+#u['g'][0] = (1-y**2) 
+
+kappa  = 0.426
+A      = 25.4
+nu     = 1.0 
+
+nu_T = lambda eta: (nu/2) * (
+    1 + (kappa**2 * Re_tau**2 / 9.0)
+    * (1 - eta**2)**2
+    * (1 + 2*eta**2)**2
+    * (1 - np.exp((np.abs(eta) - 1) * Re_tau / A))**2
+)**0.5 + nu/2
+
+dUdy = lambda eta: -Re_tau*eta/nu_T(eta)
+from scipy.integrate import quad
+
+u['g'][0]=quad(dUdy,-1,y)
+
+print(u['g'][0])
 
 #This is random noise to trigger transition to turbulence
 #+ np.random.randn(*u['g'][0].shape) * 1e-6*np.sin(np.pi*(y+1)*0.5) # Laminar solution (plane Poiseuille)+  random perturbation
