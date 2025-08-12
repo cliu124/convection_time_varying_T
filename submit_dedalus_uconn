@@ -19,9 +19,9 @@ SUBMITDIR=$SLURM_SUBMIT_DIR
 WORKDIR=/scratch/chl23026/chl23026/dedalus_$SLURM_JOB_ID
 mkdir -p "$WORKDIR" && cp -r *.py "$WORKDIR" && cp submit_dedalus_uconn "$WORKDIR" && cd "$WORKDIR" || exit -1
 
-conda activate dedalus2
+conda activate dedalus3
 
-mpiexec -n $SLURM_NTASKS python3 double_diffusive_settling.py
+mpiexec -n $SLURM_NTASKS python3 main_channel_flow_turbulent_forced_convection_varying_T.py
 
 cd "$SUBMITDIR" && cp dedalus_output_$SLURM_JOB_ID "$WORKDIR"
 

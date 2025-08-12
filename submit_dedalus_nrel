@@ -1,0 +1,23 @@
+#!/bin/bash
+#SBATCH --account=changliu0520
+#SBATCH --nodes=1
+#SBATCH --ntasks=16
+#SBATCH --time=30-00:00:00
+#SBATCH --mail-user=chang_liu@uconn.edu      # Destination email address
+#SBATCH --mail-type=END                       # Event(s) that triggers email notification
+#SBATCH --job-name=dedalus
+#SBATCH --output=dedalus_output_%j
+export SLURM_EXPORT_ENV=ALL
+#export I_MPI_FABRICS=shm,tcp
+
+##the slurm number to restart simulation... This need full state to be stored.
+
+SUBMITDIR=$SLURM_SUBMIT_DIR
+WORKDIR=/scratch/changliu0520/dedalus_$SLURM_JOB_ID
+mkdir -p "$WORKDIR" && cp -r *.py "$WORKDIR" && cp submit_dedalus_* "$WORKDIR" && cd "$WORKDIR" || exit -1
+
+conda activate dedalus3
+mpiexec -n $SLURM_NTASKS python3 double_diffusive_settling.py
+
+cd "$SUBMITDIR" && cp dedalus_output_$SLURM_JOB_ID "$WORKDIR"
+
