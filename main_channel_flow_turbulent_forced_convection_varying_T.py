@@ -92,9 +92,9 @@ dUdy = lambda eta: -Re_tau*eta/nu_T(eta)
 from scipy.integrate import quad
 
 U_plus = np.zeros_like(y)
-print(y)
-print(len(y))
-for j in range(1, len(y)):
+#print(y)
+print(len(y[0]))
+for j in range(1, len(y[0])):
     print('y',y[j])
     print('nu_T(y)',nu_T(y[j]))
     print('dUdy(y)',dUdy(y[j]))
