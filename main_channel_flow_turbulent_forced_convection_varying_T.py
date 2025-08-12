@@ -1,6 +1,8 @@
 import numpy as np
 import dedalus.public as d3
 import logging
+from dedalus.core.operators import interp
+
 logger = logging.getLogger(__name__)
 
 #### Parameters ###
