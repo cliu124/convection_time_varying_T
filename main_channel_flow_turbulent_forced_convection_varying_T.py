@@ -85,17 +85,21 @@ kappa  = 0.426
 A      = 25.4
 nu     = 1.0 
 
-nu_T = lambda eta: (nu/2) * (
+from sympy import symbols, integrate
+eta = symbols('eta')
+
+nu_T = (nu/2) * (
     1 + (kappa**2 * Re_tau**2 / 9.0)
     * (1 - eta**2)**2
     * (1 + 2*eta**2)**2
     * (1 - np.exp((np.abs(eta) - 1) * Re_tau / A))**2
 )**0.5 + nu/2
 
-dUdy = lambda eta: -Re_tau*eta/nu_T(eta)
-from scipy.integrate import quad
+dUdy = -Re_tau*eta/nu_T(eta)
 
-u['g'][0]=quad(dUdy,-1,y)
+U_fun = lambda y: integrate(dUdy, (eta, -1, y))
+
+u['g'][0]=U_fun(y)
 
 print(u['g'][0])
 
