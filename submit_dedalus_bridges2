@@ -6,7 +6,7 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks=8
 #SBATCH --time=1:00:00
-###SBATCH --mail-user=duc.nguyen@uconn.edu      # Destination email address
+###SBATCH --mail-user=firstname.lastname@uconn.edu      # Destination email address
 #SBATCH --mail-type=ALL                       # Event(s) that triggers email notification
 #SBATCH --job-name=dedalus_job
 #SBATCH --output=dedalus_output_%j
@@ -15,13 +15,13 @@ export SLURM_EXPORT_ENV=ALL
 
 ##the slurm number to restart simulation... This need full state to be stored.
 SUBMITDIR=$SLURM_SUBMIT_DIR
-WORKDIR=/ocean/projects/phy240052p/vnguyen9/testing/dedalus_$SLURM_JOB_ID
+WORKDIR=/ocean/projects/phy240052p/cliu4/dedalus_$SLURM_JOB_ID
 mkdir -p "$WORKDIR" && cp -r *.py "$WORKDIR" && cp submit_dedalus_bridges2 "$WORKDIR" && cd "$WORKDIR" || exit -1
 
 # submit with base envs from local computer
 source activate base
 conda activate dedalus3
-mpiexec -n $SLURM_NTASKS python3 RBC.py
+mpiexec -n $SLURM_NTASKS python3 main_channel_flow_turbulent_forced_convection_varying_T.py
 
 cd "$SUBMITDIR" && cp dedalus_output_$SLURM_JOB_ID "$WORKDIR"
 

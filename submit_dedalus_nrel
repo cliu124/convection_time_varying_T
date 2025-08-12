@@ -1,11 +1,11 @@
 #!/bin/bash
 #SBATCH --account=uconnfluent
 #SBATCH --nodes=1
-#SBATCH --ntasks=16
+#SBATCH --ntasks=96
 #SBATCH --partition=debug
-#SBATCH --time=00:10:00
-###SBATCH --mail-user=chang_liu@uconn.edu      # Destination email address
-#SBATCH --mail-type=END                       # Event(s) that triggers email notification
+#SBATCH --time=48:00:00
+###SBATCH --mail-user=chang_liu@uconn.edu      # Destination email address (Change to YOUR email)
+###SBATCH --mail-type=ALL                       # Event(s) that triggers email notification
 #SBATCH --job-name=dedalus
 #SBATCH --output=dedalus_output_%j
 export SLURM_EXPORT_ENV=ALL
