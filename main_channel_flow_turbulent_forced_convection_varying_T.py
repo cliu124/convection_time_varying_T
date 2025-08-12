@@ -93,20 +93,17 @@ from scipy.integrate import quad
 
 U_plus = np.zeros_like(y)
 #print(y)
-print(len(y[0]))
+#print(len(y[0]))
 for j in range(1, len(y[0])):
-    print(j)
-    print('y',y[0][j])
-    print('nu_T(y)',nu_T(y[0][j]))
-    print('dUdy(y)',dUdy(y[0][j]))
+    #print(j)
+    #print('nu_T(y)',nu_T(y[0][j]))
+    #print('dUdy(y)',dUdy(y[0][j]))
     result, error =quad(dUdy, -1, y[0][j])
     U_plus[0][j] = result
-    print('U(y)',U_plus[0][j])
+    print('U(y)=',U_plus[0][j],'at y=',y[0][j])
     
 
 u['g'][0]=U_plus[np.newaxis, :, np.newaxis]
-
-
 
 #This is random noise to trigger transition to turbulence
 #+ np.random.randn(*u['g'][0].shape) * 1e-6*np.sin(np.pi*(y+1)*0.5) # Laminar solution (plane Poiseuille)+  random perturbation
