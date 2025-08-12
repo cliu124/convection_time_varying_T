@@ -103,7 +103,7 @@ for j in range(0, len(y[0])):
     print('U(y)=',U_plus[0][j],'at y=',y[0][j])
     
 
-u['g'][0]=U_plus[np.newaxis, :, np.newaxis]
+u['g'][0]=U_plus[np.newaxis, :, np.newaxis]+np.random.randn(*u['g'][0].shape) * 1e-6*np.sin(np.pi*(y+1)*0.5)
 
 #This is random noise to trigger transition to turbulence
 #+ np.random.randn(*u['g'][0].shape) * 1e-6*np.sin(np.pi*(y+1)*0.5) # Laminar solution (plane Poiseuille)+  random perturbation
