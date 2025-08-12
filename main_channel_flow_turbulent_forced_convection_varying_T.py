@@ -5,24 +5,6 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-import mpi4py.MPI as _MPI
-
-_orig_Cartcomm_Sub = _MPI.Cartcomm.Sub
-
-def _safe_sub(self, remain_dims=None, *args, **kwargs):
-    if remain_dims is not None:
-        # convert numpy bools/arrays to list of ints
-        try:
-            import numpy as _np
-            rd = _np.asarray(remain_dims).astype(int).tolist()
-        except Exception:
-            rd = [int(x) for x in remain_dims]
-    else:
-        rd = remain_dims
-    return _orig_Cartcomm_Sub(self, remain_dims=rd, *args, **kwargs)
-
-_MPI.Cartcomm.Sub = _safe_sub
-
 #### Parameters ###
 Lx, Ly, Lz = (0.6*np.pi, 2.0, 0.18*np.pi)
 #Lx, Ly, Lz = (4.0*np.pi, 2.0, 2.0*np.pi)
