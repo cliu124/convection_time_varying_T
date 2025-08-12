@@ -99,8 +99,9 @@ for j in range(1, len(y[0])):
     print('y',y[0][j])
     print('nu_T(y)',nu_T(y[0][j]))
     print('dUdy(y)',dUdy(y[0][j]))
-    U_plus[0][j] = quad(dUdy, -1, y[0][j])
-    print('U(y)',U_plus[j])
+    result, error =quad(dUdy, -1, y[0][j])
+    U_plus[0][j] = result
+    print('U(y)',U_plus[0][j])
     
 
 u['g'][0]=U_plus[np.newaxis, :, np.newaxis]
