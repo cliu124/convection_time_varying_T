@@ -95,6 +95,7 @@ U_plus = np.zeros_like(y)
 #print(y)
 print(len(y[0]))
 for j in range(1, len(y[0])):
+    print(j)
     print('y',y[0][j])
     print('nu_T(y)',nu_T(y[0][j]))
     print('dUdy(y)',dUdy(y[0][j]))
