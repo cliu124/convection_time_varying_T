@@ -105,7 +105,6 @@ snapshots_2D.add_task(T(y=5/Re_tau), name='T_xz_viscous')
 snapshots_2D.add_task(T(y=15/Re_tau), name='T_xz_buffer')
 snapshots_2D.add_task(T(y=50/Re_tau), name='T_xz_log')
 
-
 #1D statistics, every sim_dt=0.1
 snapshots_stress = solver.evaluator.add_file_handler('snapshots_channel_stress', sim_dt=0.1, max_writes=40000)
 snapshots_stress.add_task(xz_average(u)@ex,name = 'ubar')
@@ -136,8 +135,8 @@ CFL.add_velocity(u) # changed threshold from 0.05 to 0.01
 flow = d3.GlobalFlowProperty(solver, cadence=20) # changed cadence from 10 to 50
 flow.add_property(np.sqrt(u@u)/2, name='TKE')
 
-flow.add_property(T, name='T')
-flow.add_property(d3.grad(T)@ey, name='dTdy')
+flow.add_property(xz_average(T), name='T_bar')
+flow.add_property(xz_average(u@ex), name='u_bar')
 
 
 # Main loop
@@ -148,10 +147,11 @@ try:
         timestep = CFL.compute_timestep()
         solver.step(timestep)
         if (solver.iteration-1) % 10 == 0:
-            max_TKE = flow.max('TKE')
-            T = flow.max('T')
-            dTdy = flow.max('dTdy')
-            logger.info('Iteration=%i, Time=%e, dt=%e, max(TKE)=%f, max(T)=%f, max(dTdy)=%f' %(solver.iteration, solver.sim_time, timestep, max_TKE, T, dTdy))
+            TKE_max = flow.max('TKE')
+            T_bar_max = flow.max('T_bar')
+            u_bar_max = flow.max('u_bar')
+
+            logger.info('Iteration=%i, Time=%e, dt=%e, max(TKE)=%f, max(u_bar)=%f, max(T_bar)=%f' %(solver.iteration, solver.sim_time, timestep, TKE_max, u_bar_max, T_bar_max))
 except:
     logger.error('Exception raised, triggering end of main loop.')
     raise
