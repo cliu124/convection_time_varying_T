@@ -85,12 +85,7 @@ kappa  = 0.426
 A      = 25.4
 nu     = 1.0 
 
-nu_T = lambda eta: (nu/2) * (
-    1 + (kappa**2 * Re_tau**2 / 9.0)
-    * (1 - eta**2)**2
-    * (1 + 2*eta**2)**2
-    * (1 - np.exp((np.abs(eta) - 1) * Re_tau / A))**2
-)**0.5 + nu/2
+nu_T = lambda eta: (nu/2)*(1+(kappa**2*Re_tau**2/9.0)*(1-eta**2)**2*(1+2*eta**2)**2*(1-np.exp((np.abs(eta)-1)*Re_tau/A))**2)**0.5+nu/2
 
 dUdy = lambda eta: -Re_tau*eta/nu_T(eta)
 
@@ -98,9 +93,12 @@ from scipy.integrate import quad
 
 U_plus = np.zeros_like(y)
 for j in range(1, len(y)):
+    print('y',y[j])
+    print('nu_T(y)',nu_T(y[j]))
+    print('dUdy(y)',dUdy(y[j]))
     U_plus[j] = quad(dUdy, -1, y[j])
+    print('U(y)',U_plus[j])
     
-print(U_plus)
 
 u['g'][0]=U_plus[np.newaxis, :, np.newaxis]
 
