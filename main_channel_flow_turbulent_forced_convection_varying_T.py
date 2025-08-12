@@ -95,7 +95,7 @@ nu_T = (nu/2) * (
     * (1 - np.exp((np.abs(eta) - 1) * Re_tau / A))**2
 )**0.5 + nu/2
 
-dUdy = -Re_tau*eta/nu_T(eta)
+dUdy = -Re_tau*eta/nu_T
 
 U_fun = lambda y: integrate(dUdy, (eta, -1, y))
 
