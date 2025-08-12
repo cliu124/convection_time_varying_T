@@ -96,12 +96,17 @@ nu_T = (nu/2) * (
 )**0.5 + nu/2
 
 dUdy = -Re_tau*eta/nu_T
-
 U_fun = lambda y: integrate(dUdy, (eta, -1, y))
 
-u['g'][0]=U_fun(y)
+U_plus = np.zeros_like(y)
+for j in range(1, len(y)):
+    U_plus[j]=U_fun(y[j])
 
-print(u['g'][0])
+print(U_plus)
+
+u['g'][0]=U_plus[np.newaxis, :, np.newaxis]
+
+
 
 #This is random noise to trigger transition to turbulence
 #+ np.random.randn(*u['g'][0].shape) * 1e-6*np.sin(np.pi*(y+1)*0.5) # Laminar solution (plane Poiseuille)+  random perturbation
