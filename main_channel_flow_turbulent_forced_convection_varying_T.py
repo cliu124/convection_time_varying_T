@@ -85,14 +85,14 @@ kappa  = 0.426
 A      = 25.4
 nu     = 1.0 
 
-from sympy import symbols, integrate
+from sympy import symbols, integrate, Abs, exp
 eta = symbols('eta')
 
 nu_T = (nu/2) * (
     1 + (kappa**2 * Re_tau**2 / 9.0)
     * (1 - eta**2)**2
     * (1 + 2*eta**2)**2
-    * (1 - np.exp((np.abs(eta) - 1) * Re_tau / A))**2
+    * (1 - exp((Abs(eta) - 1) * Re_tau / A))**2
 )**0.5 + nu/2
 
 dUdy = -Re_tau*eta/nu_T
