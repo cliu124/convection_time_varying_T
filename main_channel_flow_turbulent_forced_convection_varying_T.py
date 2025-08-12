@@ -8,8 +8,8 @@ Lx, Ly, Lz = (0.6*np.pi, 2.0, 0.18*np.pi)
 #Lx, Ly, Lz = (4.0*np.pi, 2.0, 2.0*np.pi)
 
 #Re = 16200 # U_b*H/nu
-Re=350
-Pr=1
+Re_tau=180
+Pr=0.71
 
 A0=1
 A=0.5
@@ -43,7 +43,7 @@ tau_p = dist.Field(name='tau_p')
 
 # Substitutions
 #dPdx = -Retau**2/Re**2
-dPdx = -2/Re
+dPdx = -1
 x, y, z = dist.local_grids(xbasis, ybasis, zbasis)
 ex, ey, ez = coords.unit_vector_fields(dist)
 lift_basis = ybasis.derivative_basis(1) # Chebyshev U basis
@@ -54,20 +54,20 @@ x_average = lambda A: d3.Average(A,'x')
 xz_average = lambda A: d3.Average(d3.Average(A, 'x'), 'z')
 vol_average = lambda A: d3.Average(d3.Average(d3.Average(A, 'x'), 'z'),'y')
 
-sin = lambda A: np.sin(A)
+#sin = lambda A: np.sin(A)
 # Problem
 
 problem = d3.IVP([p, u, T, tau_p, tau_u1, tau_u2, tau_T1, tau_T2], namespace=locals())
 problem.namespace.update({'t':problem.time})
 problem.add_equation("trace(grad_u) + tau_p = 0")
-problem.add_equation("dt(u) - 1/Re*div(grad_u) + grad(p) + lift(tau_u2) =-dPdx*ex -dot(u,grad(u))")
-problem.add_equation("dt(T) - 1/(Re*Pr)*div(grad_T) + lift(tau_T2) = - u@grad(T)")
+problem.add_equation("dt(u) - 1/Re_tau*div(grad_u) + grad(p) + lift(tau_u2) =-dPdx*ex -dot(u,grad(u))")
+problem.add_equation("dt(T) - 1/(Re_tau*Pr)*div(grad_T) + lift(tau_T2) = - u@grad(T) + (u@ex)/vol_average(u@ex)")
 problem.add_equation("u(y=-1) = 0") # change from -1 to -0.5
 problem.add_equation("u(y=+1) = 0") #change from 1 to 0.5
 problem.add_equation("integ(p) = 0")
 #problem.add_equation("T(y=+1)=A0+A*sin(omega*t)")
 problem.add_equation("T(y=+1)=0")
-problem.add_equation("T(y=-1)=A0+A*sin(omega*t)")
+problem.add_equation("T(y=-1)=0")
 
 # Build Solver
 dt = 0.002 # 0.001
@@ -82,22 +82,47 @@ u['g'][0] = (1-y**2)
 #This is random noise to trigger transition to turbulence
 #+ np.random.randn(*u['g'][0].shape) * 1e-6*np.sin(np.pi*(y+1)*0.5) # Laminar solution (plane Poiseuille)+  random perturbation
 
-
-snapshots = solver.evaluator.add_file_handler('snapshots_channel', sim_dt=20, max_writes=600)
-
+#Full 3D snapshots, every sim_dt=20
+snapshots = solver.evaluator.add_file_handler('snapshots_channel', sim_dt=20, max_writes=200)
 snapshots.add_task(u, name='velocity')
 snapshots.add_task(T, name='temperature')
 
-snapshots_stress = solver.evaluator.add_file_handler('snapshots_channel_stress', sim_dt=5, max_writes=400)
-snapshots_stress.add_task(xz_average(u),name = 'ubar')
+#2D slicing from the 3D data, every sim_dt=1
+snapshots_2D = solver.evaluator.add_file_handler('snapshots_channel_2D',sim_dt=1,max_writes=4000)
+snapshots_2D.add_task("interp(u,x=0)",layout="g", name='u_yz')
+snapshots_2D.add_task("interp(u,z=0)",layout="g", name='u_xy')
+snapshots_2D.add_task("interp(u,y=0)",layout="g", name='u_xz_mid')
+snapshots_2D.add_task("interp(u,y=5/Re_tau)",layout="g", name='u_xz_viscous')
+snapshots_2D.add_task("interp(u,y=15/Re_tau)",layout="g", name='u_xz_buffer')
+snapshots_2D.add_task("interp(u,y=50/Re_tau)",layout="g", name='u_xz_log')
+
+snapshots_2D.add_task("interp(T,x=0)",layout="g", name='T_yz')
+snapshots_2D.add_task("interp(T,z=0)",layout="g", name='T_xy')
+snapshots_2D.add_task("interp(T,y=0)",layout="g", name='T_xz_mid')
+snapshots_2D.add_task("interp(T,y=5/Re_tau)",layout="g", name='T_xz_viscous')
+snapshots_2D.add_task("interp(T,y=15/Re_tau)",layout="g", name='T_xz_buffer')
+snapshots_2D.add_task("interp(T,y=50/Re_tau)",layout="g", name='T_xz_log')
+
+#1D statistics, every sim_dt=0.1
+snapshots_stress = solver.evaluator.add_file_handler('snapshots_channel_stress', sim_dt=0.1, max_writes=40000)
+snapshots_stress.add_task(xz_average(u)@ex,name = 'ubar')
+snapshots_stress.add_task(d3.grad(xz_average(u)@ex)@ey,name = 'dudy')
+snapshots_stress.add_task(vol_average(u@ex),name = 'u_bulk')
 snapshots_stress.add_task(xz_average(((u-xz_average(u))@ex)**2),name = 'u_prime_u_prime')
 snapshots_stress.add_task(xz_average(((u-xz_average(u))@ey)**2),name = 'v_prime_v_prime')
 snapshots_stress.add_task(xz_average(((u-xz_average(u))@ez)**2),name = 'w_prime_w_prime')
 snapshots_stress.add_task(xz_average(((u-xz_average(u))@ex)*(u-xz_average(u))@ey),name = 'u_prime_v_prime')
 
-snapshots_thermal = solver.evaluator.add_file_handler('snapshots_channel_thermal',sim_dt=0.1,max_writes=1000)
-snapshots_thermal.add_task(xz_average(d3.grad(T)@ey),name = 'dTdy')
-snapshots_thermal.add_task(xz_average(T),name = 'T')
+snapshots_stress.add_task(xz_average(T),name = 'T')
+snapshots_stress.add_task(xz_average(d3.grad(T)@ey),name = 'dTdy')
+snapshots_stress.add_task(vol_average((u@ex)*T)/vol_average(u@ex),name = 'T_bulk')
+snapshots_stress.add_task(xz_average((T-xz_average(T))**2),name = 'T_prime_T_prime')
+snapshots_stress.add_task(xz_average(((u-xz_average(u))@ex)*(T-xz_average(T))),name = 'u_prime_T_prime')
+snapshots_stress.add_task(xz_average(((u-xz_average(u))@ey)*(T-xz_average(T))),name = 'v_prime_T_prime')
+snapshots_stress.add_task(xz_average(((u-xz_average(u))@ez)*(T-xz_average(T))),name = 'w_prime_T_prime')
+
+#snapshots_thermal = solver.evaluator.add_file_handler('snapshots_channel_thermal',sim_dt=0.1,max_writes=40000)
+
 
 # CFL
 CFL = d3.CFL(solver, initial_dt=dt, cadence=5, safety=0.5, threshold=0.05,
