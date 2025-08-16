@@ -109,31 +109,26 @@ u['g'][0]=U_plus[np.newaxis, :, np.newaxis]+np.random.randn(*u['g'][0].shape) * 
 #This is random noise to trigger transition to turbulence
 #+ np.random.randn(*u['g'][0].shape) * 1e-6*np.sin(np.pi*(y+1)*0.5) # Laminar solution (plane Poiseuille)+  random perturbation
 
-#Full 3D snapshots, every sim_dt=20
+#Full all 3D variables, every sim_dt=10, also serve as a checkpoint
 snapshots = solver.evaluator.add_file_handler('snapshots_channel', sim_dt=10, max_writes=400)
-snapshots.add_system(solver.state)
-
-#snapshots.add_task(u, name='velocity')
-#snapshots.add_task(T, name='temperature')
-
-#checkpoint = solver.evaluator.add_file_handler('checkpoint', sim_dt=20, max_writes=200)
-#checkpoint.add_system(solver.state)
+for field in solver.state:
+    snapshots.add_task(field)
 
 #2D slicing from the 3D data, every sim_dt=1
 snapshots_2D = solver.evaluator.add_file_handler('snapshots_channel_2D',sim_dt=1,max_writes=4000)
 snapshots_2D.add_task(u(x=0), name='u_yz')
 snapshots_2D.add_task(u(z=0), name='u_xy')
 snapshots_2D.add_task(u(y=0), name='u_xz_mid')
-snapshots_2D.add_task(u(y=5/Re_tau), name='u_xz_viscous')
-snapshots_2D.add_task(u(y=15/Re_tau), name='u_xz_buffer')
-snapshots_2D.add_task(u(y=50/Re_tau), name='u_xz_log')
+snapshots_2D.add_task(u(y=(-1+5/Re_tau)), name='u_xz_viscous')
+snapshots_2D.add_task(u(y=(-1+15/Re_tau)), name='u_xz_buffer')
+snapshots_2D.add_task(u(y=(-1+50/Re_tau)), name='u_xz_log')
 
 snapshots_2D.add_task(T(x=0), name='T_yz')
 snapshots_2D.add_task(T(z=0), name='T_xy')
 snapshots_2D.add_task(T(y=0), name='T_xz_mid')
-snapshots_2D.add_task(T(y=5/Re_tau), name='T_xz_viscous')
-snapshots_2D.add_task(T(y=15/Re_tau), name='T_xz_buffer')
-snapshots_2D.add_task(T(y=50/Re_tau), name='T_xz_log')
+snapshots_2D.add_task(T(y=(-1+5/Re_tau)), name='T_xz_viscous')
+snapshots_2D.add_task(T(y=(-1+15/Re_tau)), name='T_xz_buffer')
+snapshots_2D.add_task(T(y=(-1+50/Re_tau)), name='T_xz_log')
 
 #1D statistics, every sim_dt=0.1
 snapshots_stress = solver.evaluator.add_file_handler('snapshots_channel_stress', sim_dt=0.1, max_writes=40000)
