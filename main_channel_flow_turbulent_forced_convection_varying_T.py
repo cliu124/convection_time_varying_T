@@ -110,9 +110,14 @@ u['g'][0]=U_plus[np.newaxis, :, np.newaxis]+np.random.randn(*u['g'][0].shape) * 
 #+ np.random.randn(*u['g'][0].shape) * 1e-6*np.sin(np.pi*(y+1)*0.5) # Laminar solution (plane Poiseuille)+  random perturbation
 
 #Full 3D snapshots, every sim_dt=20
-snapshots = solver.evaluator.add_file_handler('snapshots_channel', sim_dt=20, max_writes=200)
-snapshots.add_task(u, name='velocity')
-snapshots.add_task(T, name='temperature')
+snapshots = solver.evaluator.add_file_handler('snapshots_channel', sim_dt=10, max_writes=400)
+snapshots.add_system(solver.state)
+
+#snapshots.add_task(u, name='velocity')
+#snapshots.add_task(T, name='temperature')
+
+#checkpoint = solver.evaluator.add_file_handler('checkpoint', sim_dt=20, max_writes=200)
+#checkpoint.add_system(solver.state)
 
 #2D slicing from the 3D data, every sim_dt=1
 snapshots_2D = solver.evaluator.add_file_handler('snapshots_channel_2D',sim_dt=1,max_writes=4000)
