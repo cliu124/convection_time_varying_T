@@ -6,26 +6,27 @@ import logging
 logger = logging.getLogger(__name__)
 
 #### Parameters ###
-Lx, Ly, Lz = (0.6*np.pi, 2.0, 0.18*np.pi)
-#Lx, Ly, Lz = (4.0*np.pi, 2.0, 2.0*np.pi)
 
 #Re = 16200 # U_b*H/nu
-Re_tau=180
-Pr=0.71
+#Re_tau=180
+Re_tau=550
 
-A0=1
-A=0.5
-omega=0.1
+Pr=0.71 #Prandtl number
 
-#Retau = 180 # = u_tau*H/nu
+### domain size
+#Lx, Ly, Lz = (0.6*np.pi, 2.0, 0.18*np.pi) #Re_tau=180, minimal box
+#Lx, Ly, Lz = (4.0*np.pi, 2.0, 2.0*np.pi) #Re_tau=180, regular box
+Lx, Ly, Lz = (2.0*np.pi, 2.0, np.pi) #Re_tau=550, Hoyas's thermal box
+
+### resolutions
+#nx, ny, nz = 48, 64, 42 #54, 129, 42
+#nx, ny, nz = 192, 129, 160 #Re_tau=180, Kim Moin and Moser resolution. 
+nx, ny, nz = 288, 180, 240 #Re_tau =550, Lx=2pi, Lz=pi Hoyas box. 
+
 dtype = np.float64
 #stop_sim_time = 50
 timestepper = d3.RK222
 max_timestep = 0.1  # 0.125 to 0.1
-
-# Create bases and domain
-nx, ny, nz = 48, 64, 42 #54, 129, 42
-#nx, ny, nz = 192, 129, 160 # larger box. Kim Moin and Moser 
 
 coords = d3.CartesianCoordinates('x', 'y','z')
 dist = d3.Distributor(coords, dtype=np.float64)
