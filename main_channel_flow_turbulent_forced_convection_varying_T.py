@@ -132,7 +132,7 @@ snapshots_2D.add_task(T(y=(-1+50/Re_tau)), name='T_xz_log')
 
 #1D statistics, every sim_dt=0.1
 snapshots_stress = solver.evaluator.add_file_handler('snapshots_channel_stress', sim_dt=0.1, max_writes=40000)
-snapshots_stress.add_task(xz_average(u)@ex,name = 'ubar')
+snapshots_stress.add_task(xz_average(u)@ex,name = 'u_bar')
 snapshots_stress.add_task(d3.grad(xz_average(u)@ex)@ey,name = 'dudy')
 snapshots_stress.add_task(vol_average(u@ex),name = 'u_bulk')
 snapshots_stress.add_task(xz_average(((u-xz_average(u))@ex)**2),name = 'u_prime_u_prime')
@@ -140,7 +140,7 @@ snapshots_stress.add_task(xz_average(((u-xz_average(u))@ey)**2),name = 'v_prime_
 snapshots_stress.add_task(xz_average(((u-xz_average(u))@ez)**2),name = 'w_prime_w_prime')
 snapshots_stress.add_task(xz_average(((u-xz_average(u))@ex)*(u-xz_average(u))@ey),name = 'u_prime_v_prime')
 
-snapshots_stress.add_task(xz_average(T),name = 'T')
+snapshots_stress.add_task(xz_average(T),name = 'T_bar')
 snapshots_stress.add_task(xz_average(d3.grad(T)@ey),name = 'dTdy')
 snapshots_stress.add_task(vol_average((u@ex)*T)/vol_average(u@ex),name = 'T_bulk')
 snapshots_stress.add_task(xz_average((T-xz_average(T))**2),name = 'T_prime_T_prime')
