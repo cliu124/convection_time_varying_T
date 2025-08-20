@@ -8,20 +8,22 @@ logger = logging.getLogger(__name__)
 #### Parameters ###
 
 #Re = 16200 # U_b*H/nu
-#Re_tau=180
-Re_tau=550
+Re_tau=180
+#Re_tau=550
 
 Pr=0.71 #Prandtl number
 
 ### domain size
 #Lx, Ly, Lz = (0.6*np.pi, 2.0, 0.18*np.pi) #Re_tau=180, minimal box
-#Lx, Ly, Lz = (4.0*np.pi, 2.0, 2.0*np.pi) #Re_tau=180, regular box
-Lx, Ly, Lz = (2.0*np.pi, 2.0, np.pi) #Re_tau=550, Hoyas's thermal box
+Lx, Ly, Lz = (4.0*np.pi, 2.0, 2.0*np.pi) #Re_tau=180, regular box
+#Lx, Ly, Lz = (2.0*np.pi, 2.0, np.pi) #Re_tau=550, Hoyas's thermal box
 
 ### resolutions
 #nx, ny, nz = 48, 64, 42 #54, 129, 42
 #nx, ny, nz = 192, 129, 160 #Re_tau=180, Kim Moin and Moser resolution. 
-nx, ny, nz = 288, 180, 240 #Re_tau =550, Lx=2pi, Lz=pi Hoyas box. 
+nx, ny, nz = 192, 258, 160 #Re_tau=180, double the vertical resolution
+
+#nx, ny, nz = 288, 180, 240 #Re_tau =550, Lx=2pi, Lz=pi Hoyas box. 
 
 restart=1
 checkpoint_path='/scratch/changliu0520/dedalus_10338563/snapshots_channel/snapshots_channel_s1.h5'
