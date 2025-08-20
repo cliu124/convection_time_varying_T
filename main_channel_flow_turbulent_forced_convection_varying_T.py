@@ -23,6 +23,9 @@ Lx, Ly, Lz = (2.0*np.pi, 2.0, np.pi) #Re_tau=550, Hoyas's thermal box
 #nx, ny, nz = 192, 129, 160 #Re_tau=180, Kim Moin and Moser resolution. 
 nx, ny, nz = 288, 180, 240 #Re_tau =550, Lx=2pi, Lz=pi Hoyas box. 
 
+restart=1
+checkpoint_path='/scratch/changliu0520/dedalus_10338563/snapshots_channel/snapshots_channel_s1.h5'
+
 dtype = np.float64
 #stop_sim_time = 50
 timestepper = d3.RK222
@@ -103,19 +106,25 @@ for j in range(0, len(y[0])):
     U_plus[0][j] = result
     print('U(y)=',U_plus[0][j],'at y=',y[0][j])
     
+if not restart:
+    u['g'][0]=U_plus[np.newaxis, :, np.newaxis]+np.random.randn(*u['g'][0].shape) * 1e-6*np.sin(np.pi*(y+1)*0.5)
+    T['g']=u['g'][0]
+    file_handler_mode = 'overwrite'
+else:
+    write, initial_timestep = solver.load_state(checkpoint_path)
+    file_handler_mode = 'append'
 
-u['g'][0]=U_plus[np.newaxis, :, np.newaxis]+np.random.randn(*u['g'][0].shape) * 1e-6*np.sin(np.pi*(y+1)*0.5)
 
 #This is random noise to trigger transition to turbulence
 #+ np.random.randn(*u['g'][0].shape) * 1e-6*np.sin(np.pi*(y+1)*0.5) # Laminar solution (plane Poiseuille)+  random perturbation
 
 #Full all 3D variables, every sim_dt=10, also serve as a checkpoint
-snapshots = solver.evaluator.add_file_handler('snapshots_channel', sim_dt=10, max_writes=400)
+snapshots = solver.evaluator.add_file_handler('snapshots_channel', sim_dt=5, max_writes=400, mode=file_handler_mode)
 for field in solver.state:
     snapshots.add_task(field)
 
 #2D slicing from the 3D data, every sim_dt=1
-snapshots_2D = solver.evaluator.add_file_handler('snapshots_channel_2D',sim_dt=1,max_writes=4000)
+snapshots_2D = solver.evaluator.add_file_handler('snapshots_channel_2D',sim_dt=0.2,max_writes=4000, mode=file_handler_mode)
 snapshots_2D.add_task(u(x=0), name='u_yz')
 snapshots_2D.add_task(u(z=0), name='u_xy')
 snapshots_2D.add_task(u(y=0), name='u_xz_mid')
@@ -131,7 +140,8 @@ snapshots_2D.add_task(T(y=(-1+15/Re_tau)), name='T_xz_buffer')
 snapshots_2D.add_task(T(y=(-1+50/Re_tau)), name='T_xz_log')
 
 #1D statistics, every sim_dt=0.1
-snapshots_stress = solver.evaluator.add_file_handler('snapshots_channel_stress', sim_dt=0.1, max_writes=40000)
+snapshots_stress = solver.evaluator.add_file_handler('snapshots_channel_stress', sim_dt=0.01, max_writes=40000,mode=file_handler_mode)
+
 snapshots_stress.add_task(xz_average(u)@ex,name = 'u_bar')
 snapshots_stress.add_task(d3.grad(xz_average(u)@ex)@ey,name = 'dudy')
 snapshots_stress.add_task(vol_average(u@ex),name = 'u_bulk')
