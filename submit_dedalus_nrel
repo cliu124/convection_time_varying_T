@@ -1,5 +1,6 @@
 #!/bin/bash
 #SBATCH --account=uconnfluent
+#SBATCH --qos=high ### high priority will charge twice... standby: does not charge AUs
 #SBATCH --nodes=2
 #SBATCH --ntasks=96
 #SBATCH --partition=standard
