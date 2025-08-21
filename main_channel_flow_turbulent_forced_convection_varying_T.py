@@ -80,7 +80,6 @@ problem.add_equation("T(y=-1)=0")
 # Build Solver
 dt = 0.002 # 0.001
 stop_sim_time = 100
-fh_mode = 'overwrite'
 solver = problem.build_solver(timestepper)
 solver.stop_sim_time = stop_sim_time
 
@@ -121,7 +120,7 @@ else:
 #+ np.random.randn(*u['g'][0].shape) * 1e-6*np.sin(np.pi*(y+1)*0.5) # Laminar solution (plane Poiseuille)+  random perturbation
 
 #Full all 3D variables, every sim_dt=10, also serve as a checkpoint
-snapshots = solver.evaluator.add_file_handler('snapshots_channel', sim_dt=5, max_writes=400, mode=file_handler_mode)
+snapshots = solver.evaluator.add_file_handler('snapshots_channel', sim_dt=3, max_writes=400, mode=file_handler_mode)
 for field in solver.state:
     snapshots.add_task(field)
 
