@@ -1,10 +1,10 @@
 #!/bin/bash
 #SBATCH --account=uconnfluent
 #SBATCH --qos=high ### high priority will charge twice... standby: does not charge AUs
-#SBATCH --nodes=2
+#SBATCH --nodes=1
 #SBATCH --ntasks=96
-#SBATCH --partition=standard
-#SBATCH --time=48:00:00
+#SBATCH --partition=medmem
+#SBATCH --time=120:00:00
 ###SBATCH --mail-user=chang_liu@uconn.edu      # Destination email address (Change to YOUR email)
 ###SBATCH --mail-type=ALL                       # Event(s) that triggers email notification
 #SBATCH --job-name=Dedalus
