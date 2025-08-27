@@ -1,9 +1,9 @@
 clear all;
 close all;
 
-folder_path='D:\Data\dedalus';
+folder_path='D:\Data\Dedalus';
 %slurm_list={'10249087'};
-slurm_list={'10424250'};
+slurm_list={'10439614'};
 stress_list={'u_prime_u_prime',...
     'v_prime_v_prime',...
     'w_prime_w_prime',...
@@ -20,10 +20,11 @@ stress_label_list={'$\langle u''u''\rangle $',...
     '$\langle u''T''\rangle$',...
     '$\langle v''T''\rangle$',...
     '$\langle w''T''\rangle$'};
+
 Re_tau=180;
 % average_range=[800,931];
 % average_range=[1,4000];
-average_range=[90,111];
+average_range=[1,10101];
 for slurm_ind=1:length(slurm_list)
     % data{slurm_ind}.y=squeeze(h5read([folder_path,'\dedalus_',slurm_list{slurm_ind},'\snapshots_channel_stress\snapshots_channel_stress_s1.h5'],['/scales/']));
     h5name=[folder_path,'\dedalus_',slurm_list{slurm_ind},'\snapshots_channel_stress\snapshots_channel_stress_s1.h5'];
@@ -40,7 +41,7 @@ for slurm_ind=1:length(slurm_list)
         plot_config.label_list={1,'y',stress_label_list{stress_ind}}; 
         plot_config.Markerindex=3;
         plot_config.user_color_style_marker_list={'k-','bo'};
-        plot_config.name=[folder_path,'\dedalus_',slurm_list{slurm_ind},'\',stress_list{stress_ind},'.png'];
+        plot_config.name=[folder_path,'\dedalus_',slurm_list{slurm_ind},'\snapshots_channel_stress\',stress_list{stress_ind},'.png'];
         plot_line(data_plot,plot_config);
     end
     
