@@ -3,7 +3,7 @@ close all;
 
 folder_path='D:\Data\Dedalus';
 %slurm_list={'10249087'};
-slurm_list={'10439614'};
+slurm_list={'10476429'};
 stress_list={'u_prime_u_prime',...
     'v_prime_v_prime',...
     'w_prime_w_prime',...
@@ -24,7 +24,7 @@ stress_label_list={'$\langle u''u''\rangle $',...
 Re_tau=180;
 % average_range=[800,931];
 % average_range=[1,4000];
-average_range=[1,10101];
+average_range=[1,6000];
 for slurm_ind=1:length(slurm_list)
     % data{slurm_ind}.y=squeeze(h5read([folder_path,'\dedalus_',slurm_list{slurm_ind},'\snapshots_channel_stress\snapshots_channel_stress_s1.h5'],['/scales/']));
     h5name=[folder_path,'\dedalus_',slurm_list{slurm_ind},'\snapshots_channel_stress\snapshots_channel_stress_s1.h5'];
