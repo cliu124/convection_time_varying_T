@@ -82,7 +82,7 @@ problem = d3.IVP([p, u, T, tau_p, tau_u1, tau_u2, tau_T1, tau_T2], namespace=loc
 problem.namespace.update({'t':problem.time})
 problem.add_equation("trace(grad_u) + tau_p = 0")
 
-problem.add_equation("dt(u) - 1/Re_tau*div(grad_u) + grad(p) + lift(tau_u2)-Ri_tau*(T-xz_average(T))*ez =-dPdx*ex -dot(u,grad(u))")
+problem.add_equation("dt(u) - 1/Re_tau*div(grad_u) + grad(p) + lift(tau_u2) =-dPdx*ex -dot(u,grad(u))+Ri_tau*(T-xz_average(T))*ez")
 problem.add_equation("dt(T) - 1/(Re_tau*Pr)*div(grad_T) + lift(tau_T2) = - u@grad(T)")
 
 problem.add_equation("u(y=-1) = 0") # change from -1 to -0.5
