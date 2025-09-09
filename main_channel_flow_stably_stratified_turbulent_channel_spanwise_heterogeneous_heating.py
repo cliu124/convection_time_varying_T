@@ -8,19 +8,22 @@ logger = logging.getLogger(__name__)
 #### Parameters ###
 
 #Re = 16200 # U_b*H/nu
-#Re_tau=180
-Re_tau=395
+Re_tau=180
+#Re_tau=395
 #Re_tau=550
 
 Pr=0.71 #Prandtl number
 
-A=0 #[0.1,0.2,0.3,0.4,0.5] pressure gradient oscillation amplitude
-omega=0.2 #[0.1,0.2,0.5,1,2,5] pressure gradient oscillation frequency
+Ri_tau=120
+#A=0 #[0.1,0.2,0.3,0.4,0.5] pressure gradient oscillation amplitude
+#omega=0.2 #[0.1,0.2,0.5,1,2,5] pressure gradient oscillation frequency
+
+
 
 ### domain size
 #Lx, Ly, Lz = (0.6*np.pi, 2.0, 0.18*np.pi) #Re_tau=180, minimal box
-#Lx, Ly, Lz = (4.0*np.pi, 2.0, 2.0*np.pi) #Re_tau=180, regular box
-Lx, Ly, Lz = (2.0*np.pi, 2.0, np.pi) #Re_tau=550, Hoyas's thermal box
+Lx, Ly, Lz = (4.0*np.pi, 2.0, 2.0*np.pi) #Re_tau=180, regular box
+#Lx, Ly, Lz = (2.0*np.pi, 2.0, np.pi) #Re_tau=550, Hoyas's thermal box
 
 ### resolutions
 #nx, ny, nz = 48, 64, 42 #54, 129, 42
@@ -28,10 +31,10 @@ Lx, Ly, Lz = (2.0*np.pi, 2.0, np.pi) #Re_tau=550, Hoyas's thermal box
 nx, ny, nz = 192, 258, 160 #Re_tau=180, double the vertical resolution
 
 #nx, ny, nz = 288, 512, 240 #Re_tau =550, Lx=2pi, Lz=pi Hoyas box. 
-nx, ny, nz = 256, 416, 240 #Re_tau=550, parallel in y direction. Fourier direction
+#nx, ny, nz = 256, 416, 240 #Re_tau=550, parallel in y direction. Fourier direction
 
 
-restart=0
+restart=1
 checkpoint_path='/scratch/changliu0520/dedalus_10424250/snapshots_channel/snapshots_channel_s1.h5'
 load_time= 99
 
@@ -78,13 +81,14 @@ sin = lambda A: np.sin(A)
 problem = d3.IVP([p, u, T, tau_p, tau_u1, tau_u2, tau_T1, tau_T2], namespace=locals())
 problem.namespace.update({'t':problem.time})
 problem.add_equation("trace(grad_u) + tau_p = 0")
-problem.add_equation("dt(u) - 1/Re_tau*div(grad_u) + grad(p) + lift(tau_u2) =-dPdx*(1+A*sin(omega*(t-load_time)))*ex -dot(u,grad(u))")
-problem.add_equation("dt(T) - 1/(Re_tau*Pr)*div(grad_T) + lift(tau_T2) = - u@grad(T) + (u@ex)/vol_average(u@ex)")
+
+problem.add_equation("dt(u) - 1/Re_tau*div(grad_u) + grad(p) + lift(tau_u2)-Ri_tau*(T-xz_average(T))*ez =-dPdx*ex -dot(u,grad(u))")
+problem.add_equation("dt(T) - 1/(Re_tau*Pr)*div(grad_T) + lift(tau_T2) = - u@grad(T)")
+
 problem.add_equation("u(y=-1) = 0") # change from -1 to -0.5
 problem.add_equation("u(y=+1) = 0") #change from 1 to 0.5
 problem.add_equation("integ(p) = 0")
-#problem.add_equation("T(y=+1)=A0+A*sin(omega*t)")
-problem.add_equation("T(y=+1)=0")
+problem.add_equation("T(y=+1)=1")
 problem.add_equation("T(y=-1)=0")
 
 # Build Solver
