@@ -1,12 +1,9 @@
 clear all;
 close all;
 
-%folder_path='E:\Data\dedalus_turbulent_channel';
-folder_path='E:\Data\dedalus';
-
+folder_path='D:\Data\Dedalus';
 %slurm_list={'10249087'};
-slurm_list={'10439614'};
-
+slurm_list={'10476429'};
 stress_list={'u_prime_u_prime',...
     'v_prime_v_prime',...
     'w_prime_w_prime',...
@@ -14,9 +11,7 @@ stress_list={'u_prime_u_prime',...
     'T_prime_T_prime',...
     'u_prime_T_prime',...
     'v_prime_T_prime',...
-    'w_prime_T_prime',...
-    'T_bar',...
-    'u_bar'};
+    'w_prime_T_prime'};
 stress_label_list={'$\langle u''u''\rangle $',...
     '$\langle v''v''\rangle$',...
     '$\langle w''w''\rangle$',...
@@ -24,49 +19,30 @@ stress_label_list={'$\langle u''u''\rangle $',...
     '$\langle T''T''\rangle$',...
     '$\langle u''T''\rangle$',...
     '$\langle v''T''\rangle$',...
-    '$\langle w''T''\rangle$',...
-    '$\bar{T}$',...
-    '$\bar{u}$'};
+    '$\langle w''T''\rangle$'};
 
 Re_tau=180;
 % average_range=[800,931];
 % average_range=[1,4000];
-average_range=[1,10101];
+average_range=[1,6000];
 for slurm_ind=1:length(slurm_list)
     % data{slurm_ind}.y=squeeze(h5read([folder_path,'\dedalus_',slurm_list{slurm_ind},'\snapshots_channel_stress\snapshots_channel_stress_s1.h5'],['/scales/']));
     h5name=[folder_path,'\dedalus_',slurm_list{slurm_ind},'\snapshots_channel_stress\snapshots_channel_stress_s1.h5'];
     for stress_ind=1:length(stress_list)
-        clear data_plot data_plot_log; 
+        clear data_plot; 
         data{slurm_ind}.(stress_list{stress_ind})=squeeze(h5read(h5name,['/tasks/',stress_list{stress_ind}]));
         data{slurm_ind}.y=readDatasetByPrefix(h5name,'/scales', 'y_hash_');
         
         %h5read(h5name,'/scales/y_hash_04efb45f3573dba433867d7f01cfa48347d433e5');
-
+    
         data_plot{1}.x=data{slurm_ind}.y;
         data_plot{1}.y=mean(data{slurm_ind}.(stress_list{stress_ind})(:,average_range),2); 
-        if ~strcmp(stress_list{stress_ind},'T_bar')
-            data_plot = add_DNS_stress_literature(data_plot,stress_list{stress_ind},Re_tau);
-        end
+        data_plot=add_DNS_stress_literature(data_plot,stress_list{stress_ind},Re_tau);
         plot_config.label_list={1,'y',stress_label_list{stress_ind}}; 
         plot_config.Markerindex=3;
-        plot_config.user_color_style_marker_list={'k-','bo','rx','g*'};
+        plot_config.user_color_style_marker_list={'k-','bo'};
         plot_config.name=[folder_path,'\dedalus_',slurm_list{slurm_ind},'\snapshots_channel_stress\',stress_list{stress_ind},'.png'];
-        plot_config.xlim_list = [1,-1,1];
-        plot_config.loglog = [0,0];
         plot_line(data_plot,plot_config);
-        data_plot_log = data_plot;
-
-        for data_ind=1:length(data_plot_log)
-            data_plot_log{data_ind}.x = Re_tau*(1+data_plot_log{data_ind}.x);
-        end
-        if ~strcmp(stress_list{stress_ind},'T_bar')
-            data_plot_log = add_DNS_stress_literature(data_plot_log,stress_list{stress_ind},Re_tau);
-        end
-        plot_config.xlim_list = [1,1,Re_tau];
-        plot_config.loglog = [1,0];
-        plot_config.name=[folder_path,'\dedalus_',slurm_list{slurm_ind},'\snapshots_channel_stress\',stress_list{stress_ind},'_log.png'];
-        plot_line(data_plot_log,plot_config);
-        
     end
     
 end
@@ -301,7 +277,7 @@ function data=add_DNS_stress_literature(data,stress_name,Re_tau)
                         0.249319	0.698735
                         0.278525	0.719186
                         0.324642	0.753307
-                        0.36462	    0.787514
+                        0.36462	0.787514
                         0.401528	0.821763
                         0.441506	0.85597
                         0.473788	0.879855
@@ -317,7 +293,7 @@ function data=add_DNS_stress_literature(data,stress_name,Re_tau)
                         0.847169	1.07281
                         0.882378	1.02713
                         0.908372	0.978099
-                        0.92512	    0.911818
+                        0.92512	0.911818
                         0.949429	0.789811
                         0.958503	0.723636
                         0.970562	0.615705
@@ -331,187 +307,9 @@ function data=add_DNS_stress_literature(data,stress_name,Re_tau)
                     data{data_len+1}.x=stress(:,1);
                     data{data_len+1}.y=stress(:,2);
                 case 'u_prime_v_prime'
-                %stress=[
-                %        ];
-                %    stress(:,2)=stress(:,2).^2;
-                %    data_len=length(data);
-                %    data{data_len+1}.x=stress(:,1);
-                %    data{data_len+1}.y=stress(:,2);
-                case 'T_prime_T_Prime'
-                %stress=[
-                 %       ];
-                  %  stress(:,2)=stress(:,2).^2;
-                   % data_len=length(data);
-                    %data{data_len+1}.x=stress(:,1);
-                    %data{data_len+1}.y=stress(:,2);
                 case 'u_prime_T_prime'
-                stress=[-0.998478727	0.025536
-                        -0.996374233	0.0893022
-                        -0.9932164	    0.16583
-                        -0.991114133	0.26784
-                        -0.9890104	    0.344354
-                        -0.986909667	0.471859
-                        -0.985863	    0.599351
-                        -0.982708133	0.72687
-                        -0.980605867	0.82888
-                        -0.980611133	0.918115
-                        -0.978511867	1.07112
-                        -0.976410333	1.18587
-                        -0.9764178	    1.31335
-                        -0.974317067	1.44086
-                        -0.973271133	1.5811
-                        -0.971171867	1.7341
-                        -0.971179333	1.86158
-                        -0.9669756	    2.07835
-                        -0.964884533	2.37157
-                        -0.9617342	    2.57558
-                        -0.960692	    2.77956
-                        -0.958594267	2.95806
-                        -0.956498733	3.1748
-                        -0.953349067	3.39155
-                        -0.952306133	3.58278
-                        -0.951261733	3.74852
-                        -0.947062467	4.04177
-                        -0.943912867	4.25853
-                        -0.939709867	4.48804
-                        -0.9365632	    4.75579
-                        -0.932360667	4.99805
-                        -0.927103333	5.21483
-                        -0.921846	    5.44436
-                        -0.915534	    5.66115
-                        -0.907109333	5.80149
-                        -0.896571333	5.85261
-                        -0.884976667	5.86551
-                        -0.877592667	5.77637
-                        -0.868096667	5.62352
-                        -0.858601333	5.48341
-                        -0.848050667	5.31782
-                        -0.838552667	5.12672
-                        -0.831164	    4.9611
-                        -0.819558667	4.78277
-                        -0.809005333	4.57894
-                        -0.798451333	4.36236
-                        -0.786844667	4.15855
-                        -0.775238	    3.96748
-                        -0.762576	    3.75092
-                        -0.749916	    3.57261
-                        -0.730926667	3.30515
-                        -0.714047333	3.0759
-                        -0.700336	    2.93585
-                        -0.678184	    2.66843
-                        -0.654982	    2.47751
-                        -0.638106667	2.312
-                        -0.611743333	2.13387
-                        -0.586434667	1.95572
-                        -0.565344667	1.82851
-                        -0.544256667	1.72679
-                        -0.527384	    1.61228
-                        -0.504188667	1.52334
-                        -0.478882	    1.39618
-                        -0.459904	    1.31994
-                        -0.4346	        1.23102
-                        -0.411406	    1.16758
-                        -0.386102667	1.09142
-                        -0.361852667	1.00249
-                        -0.337604	    0.926312
-                        -0.307033333	0.850215
-                        -0.27962	    0.774077
-                        -0.25748	    0.71062
-                        -0.22796	    0.634509
-                        -0.204766667	0.609309
-                        -0.182626667	0.545851
-                        -0.154166667	0.520719
-                        -0.128866667	0.495545
-                        -0.105673333	0.457597
-                        -0.0867	        0.457839
-                        -0.056126667	0.419985
-                        -0.035046667	0.407506
-                        -0.008693333	0.395094
-                        -0.00026	    0.40795
-                        ];
-                    % stress(:,2)=stress(:,2).^2;
-                    data_len=length(data);
-                    data{data_len+1}.x=stress(:,1);
-                    data{data_len+1}.y=stress(:,2);
                 case 'v_prime_T_prime'
-                stress=[
-                        -0.983219267	0.00638613
-                        -0.979993267	0.0145682
-                        -0.973538867	0.0292968
-                        -0.969254733	0.0521996
-                        -0.963889067	0.0734686
-                        -0.958532733	0.101279
-                        -0.955337333	0.130723
-                        -0.949995133	0.168346
-                        -0.942496733	0.207608
-                        -0.9371616	0.250138
-                        -0.931826667	0.292668
-                        -0.925412	0.3352
-                        -0.917934667	0.389181
-                        -0.910441333	0.431715
-                        -0.901878	0.480791
-                        -0.893304667	0.523326
-                        -0.882571333	0.564228
-                        -0.872892667	0.588774
-                        -0.867529333	0.611679
-                        -0.851385333	0.642776
-                        -0.834157333	0.670604
-                        -0.807206	0.691905
-                        -0.774837333	0.698494
-                        -0.745688	0.691994
-                        -0.719766667	0.678948
-                        -0.69168	0.660999
-                        -0.660353333	0.641418
-                        -0.637665333	0.625097
-                        -0.607415333	0.60388
-                        -0.583631333	0.576111
-                        -0.558787333	0.561428
-                        -0.536092	0.5402
-                        -0.513392	0.515701
-                        -0.493946667	0.502645
-                        -0.471249333	0.479782
-                        -0.448551333	0.456918
-                        -0.419376	0.432428
-                        -0.396678667	0.409565
-                        -0.376142	0.388334
-                        -0.354524	0.365468
-                        -0.330746667	0.340971
-                        -0.302646667	0.31648
-                        -0.283186667	0.293611
-                        -0.261573333	0.274017
-                        -0.2432	0.252783
-                        -0.224826667	0.234819
-                        -0.205366667	0.211951
-                        -0.17836	0.194
-                        -0.1589	0.171132
-                        -0.13836	0.148265
-                        -0.114573333	0.120496
-                        -0.09728	0.102531
-                        -0.07134	0.0747661
-                        -0.04864	0.053538
-                        -0.029186667	0.0323051
-                        -0.016213333	0.0176047
-                        -0.001086667	0.00454297
-                       ];
-                    % stress(:,2)=stress(:,2).^2;
-                    stress(:,2)=-stress(:,2);
-                    data_len=length(data);
-                    data{data_len+1}.x=stress(:,1);
-                    data{data_len+1}.y=stress(:,2);
                 case 'w_prime_T_prime'
-                %stress=[
-                %        ];
-                %    stress(:,2)=stress(:,2).^2;
-                %    data_len=length(data);
-                %    data{data_len+1}.x=stress(:,1);
-                %    data{data_len+1}.y=stress(:,2);
-                case 'T_bar'
-                %stress=[
-                 %       ];
-                  %  data_len=length(data);
-                   % data{data_len+1}.x=stress(:,1);
-                    %data{data_len+1}.y=stress(:,2);
-
             end
         case 550
                 case 'u_prime_u_prime'
