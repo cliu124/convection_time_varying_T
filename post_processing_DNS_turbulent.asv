@@ -1,8 +1,8 @@
 clear all;
 close all;
 
-% folder_path='E:\Data\dedalus_turbulent_channel';
-folder_path='E:\Data\dedalus';
+folder_path='E:\Data\dedalus_turbulent_channel';
+% folder_path='E:\Data\dedalus';
 
 %slurm_list={'10249087'};
 slurm_list={'10439614'};
@@ -106,7 +106,7 @@ function data=add_DNS_stress_literature(data,stress_name,Re_tau)
             switch stress_name
                 case 'u_prime_u_prime'
                     %Kim J, Moin P, Moser R. Turbulence statistics in fully developed channel flow at low Reynolds number. Journal of fluid mechanics. 1987 Apr;177:133-66.
-                    %Re_tau=180
+                    %R
                     stress=[-0.9859	0.889723
                     -0.985672	1.00096
                     -0.982318	1.13996
@@ -204,8 +204,6 @@ function data=add_DNS_stress_literature(data,stress_name,Re_tau)
                     data{data_len+1}.x=stress(:,1);
                     data{data_len+1}.y=stress(:,2);
                 case 'v_prime_v_prime'
-                      %Kim J, Moin P, Moser R. Turbulence statistics in fully developed channel flow at low Reynolds number. Journal of fluid mechanics. 1987 Apr;177:133-66.
-                    %Re_tau=180
                     stress=[-0.979904	0.0692455
                         -0.965934	0.145529
                         -0.950393	0.239171
@@ -273,8 +271,6 @@ function data=add_DNS_stress_literature(data,stress_name,Re_tau)
                     data{data_len+1}.x=stress(:,1);
                     data{data_len+1}.y=stress(:,2);
                 case 'w_prime_w_prime'
-                      %Kim J, Moin P, Moser R. Turbulence statistics in fully developed channel flow at low Reynolds number. Journal of fluid mechanics. 1987 Apr;177:133-66.
-                    %Re_tau=180
                     stress=[-0.983826	0.40302
                         -0.975917	0.517626
                         -0.968022	0.62528
@@ -414,7 +410,6 @@ function data=add_DNS_stress_literature(data,stress_name,Re_tau)
                         131.49	0.977127
                         140.372	0.944785
                         153.988	0.903212];
-                    stress(:,1)=stress(:,1)/150-1;
                     stress(:,2)=stress(:,2).^2;
                     data_len=length(data);
                     data{data_len+1}.x=stress(:,1);
