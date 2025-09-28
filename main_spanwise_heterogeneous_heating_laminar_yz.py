@@ -138,6 +138,8 @@ if restart:
     file_handler_mode = 'append'
     
 else:
+    file_handler_mode = 'overwrite'
+
     if flow_regime=='laminar':
         np.random.seed(0)
         u['g'][0] = (1-y**2) #+ np.random.randn(*u['g'][0].shape) * 1e-6*np.sin(np.pi*(y+1)*0.5)
@@ -166,7 +168,7 @@ else:
             
         u['g'][0]=U_plus[np.newaxis, :, np.newaxis]+np.random.randn(*u['g'][0].shape) * 1e-6*np.sin(np.pi*(y+1)*0.5)
         T['g']=u['g'][0]
-        file_handler_mode = 'overwrite'
+        #file_handler_mode = 'overwrite'
     
 
 
