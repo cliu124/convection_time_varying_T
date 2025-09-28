@@ -104,8 +104,8 @@ dudy = dy(u @ ex)   # ∂u/∂y
 dvdz = dz(u @ ey)   # ∂v/dz
 dvdy = dy(u @ ey)   # ∂v/∂y 
 
-dwdz = dz(u @ dz)
-dwdy = dy(u @ dz)
+dwdz = dz(u @ ez)
+dwdy = dy(u @ ez)
 
 dTdz = dz(T)   # ∂T/∂z
 dTdy = dy(T)   # ∂T/∂y 
