@@ -193,35 +193,39 @@ snapshots_2D = solver.evaluator.add_file_handler('snapshots_channel_2D',sim_dt=0
 snapshots_2D.add_task(u(x=0), name='u_yz')
 snapshots_2D.add_task(u(z=0), name='u_xy')
 snapshots_2D.add_task(u(y=0), name='u_xz_mid')
-snapshots_2D.add_task(u(y=(-1+5/Re_tau)), name='u_xz_viscous')
-snapshots_2D.add_task(u(y=(-1+15/Re_tau)), name='u_xz_buffer')
-snapshots_2D.add_task(u(y=(-1+50/Re_tau)), name='u_xz_log')
+if flow_regime=='turbulence':
+    snapshots_2D.add_task(u(y=(-1+5/Re_tau)), name='u_xz_viscous')
+    snapshots_2D.add_task(u(y=(-1+15/Re_tau)), name='u_xz_buffer')
+    snapshots_2D.add_task(u(y=(-1+50/Re_tau)), name='u_xz_log')
 
 snapshots_2D.add_task(T(x=0), name='T_yz')
 snapshots_2D.add_task(T(z=0), name='T_xy')
 snapshots_2D.add_task(T(y=0), name='T_xz_mid')
-snapshots_2D.add_task(T(y=(-1+5/Re_tau)), name='T_xz_viscous')
-snapshots_2D.add_task(T(y=(-1+15/Re_tau)), name='T_xz_buffer')
-snapshots_2D.add_task(T(y=(-1+50/Re_tau)), name='T_xz_log')
+if flow_regime=='turbulence':
+    snapshots_2D.add_task(T(y=(-1+5/Re_tau)), name='T_xz_viscous')
+    snapshots_2D.add_task(T(y=(-1+15/Re_tau)), name='T_xz_buffer')
+    snapshots_2D.add_task(T(y=(-1+50/Re_tau)), name='T_xz_log')
 
 #1D statistics, every sim_dt=0.1
-snapshots_stress = solver.evaluator.add_file_handler('snapshots_channel_stress', sim_dt=0.01, max_writes=40000,mode=file_handler_mode)
 
-snapshots_stress.add_task(xz_average(u)@ex,name = 'u_bar')
-snapshots_stress.add_task(d3.grad(xz_average(u)@ex)@ey,name = 'dudy')
-snapshots_stress.add_task(vol_average(u@ex),name = 'u_bulk')
-snapshots_stress.add_task(xz_average(((u-xz_average(u))@ex)**2),name = 'u_prime_u_prime')
-snapshots_stress.add_task(xz_average(((u-xz_average(u))@ey)**2),name = 'v_prime_v_prime')
-snapshots_stress.add_task(xz_average(((u-xz_average(u))@ez)**2),name = 'w_prime_w_prime')
-snapshots_stress.add_task(xz_average(((u-xz_average(u))@ex)*(u-xz_average(u))@ey),name = 'u_prime_v_prime')
-
-snapshots_stress.add_task(xz_average(T),name = 'T_bar')
-snapshots_stress.add_task(xz_average(d3.grad(T)@ey),name = 'dTdy')
-snapshots_stress.add_task(vol_average((u@ex)*T)/vol_average(u@ex),name = 'T_bulk')
-snapshots_stress.add_task(xz_average((T-xz_average(T))**2),name = 'T_prime_T_prime')
-snapshots_stress.add_task(xz_average(((u-xz_average(u))@ex)*(T-xz_average(T))),name = 'u_prime_T_prime')
-snapshots_stress.add_task(xz_average(((u-xz_average(u))@ey)*(T-xz_average(T))),name = 'v_prime_T_prime')
-snapshots_stress.add_task(xz_average(((u-xz_average(u))@ez)*(T-xz_average(T))),name = 'w_prime_T_prime')
+if flow_regime=='turbulence':
+    snapshots_stress = solver.evaluator.add_file_handler('snapshots_channel_stress', sim_dt=0.01, max_writes=40000,mode=file_handler_mode)
+    
+    snapshots_stress.add_task(xz_average(u)@ex,name = 'u_bar')
+    snapshots_stress.add_task(d3.grad(xz_average(u)@ex)@ey,name = 'dudy')
+    snapshots_stress.add_task(vol_average(u@ex),name = 'u_bulk')
+    snapshots_stress.add_task(xz_average(((u-xz_average(u))@ex)**2),name = 'u_prime_u_prime')
+    snapshots_stress.add_task(xz_average(((u-xz_average(u))@ey)**2),name = 'v_prime_v_prime')
+    snapshots_stress.add_task(xz_average(((u-xz_average(u))@ez)**2),name = 'w_prime_w_prime')
+    snapshots_stress.add_task(xz_average(((u-xz_average(u))@ex)*(u-xz_average(u))@ey),name = 'u_prime_v_prime')
+    
+    snapshots_stress.add_task(xz_average(T),name = 'T_bar')
+    snapshots_stress.add_task(xz_average(d3.grad(T)@ey),name = 'dTdy')
+    snapshots_stress.add_task(vol_average((u@ex)*T)/vol_average(u@ex),name = 'T_bulk')
+    snapshots_stress.add_task(xz_average((T-xz_average(T))**2),name = 'T_prime_T_prime')
+    snapshots_stress.add_task(xz_average(((u-xz_average(u))@ex)*(T-xz_average(T))),name = 'u_prime_T_prime')
+    snapshots_stress.add_task(xz_average(((u-xz_average(u))@ey)*(T-xz_average(T))),name = 'v_prime_T_prime')
+    snapshots_stress.add_task(xz_average(((u-xz_average(u))@ez)*(T-xz_average(T))),name = 'w_prime_T_prime')
 
 #snapshots_thermal = solver.evaluator.add_file_handler('snapshots_channel_thermal',sim_dt=0.1,max_writes=40000)
 
