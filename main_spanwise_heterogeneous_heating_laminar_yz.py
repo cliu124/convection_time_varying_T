@@ -100,8 +100,13 @@ dz= lambda A: d3.Differentiate(A,coords['z'])
 
 dudz = dz(u @ ex)   # ∂u/∂z
 dudy = dy(u @ ex)   # ∂u/∂y
+
 dvdz = dz(u @ ey)   # ∂v/dz
 dvdy = dy(u @ ey)   # ∂v/∂y 
+
+dwdz = dz(u @ dz)
+dwdy = dy(u @ dz)
+
 dTdz = dz(T)   # ∂T/∂z
 dTdy = dy(T)   # ∂T/∂y 
 
@@ -128,7 +133,7 @@ problem.add_equation("integ(p) = 0")
 
 # Build Solver
 dt = 0.0005 # 0.001
-stop_sim_time = 200
+stop_sim_time = 5000
 solver = problem.build_solver(timestepper)
 solver.stop_sim_time = stop_sim_time
 
@@ -176,7 +181,7 @@ else:
 #+ np.random.randn(*u['g'][0].shape) * 1e-6*np.sin(np.pi*(y+1)*0.5) # Laminar solution (plane Poiseuille)+  random perturbation
 
 #Full all 3D variables, every sim_dt=10, also serve as a checkpoint
-snapshots = solver.evaluator.add_file_handler('snapshots_channel', sim_dt=1, max_writes=400, mode=file_handler_mode)
+snapshots = solver.evaluator.add_file_handler('snapshots_channel', sim_dt=1, max_writes=5000, mode=file_handler_mode)
 for field in solver.state:
     snapshots.add_task(field)
 #Add gradient for u, v, and T that will be used as base state for input-output    
@@ -184,12 +189,14 @@ snapshots.add_task(dudz, name='dudz')
 snapshots.add_task(dudy, name='dudy')
 snapshots.add_task(dvdz, name='dvdz')
 snapshots.add_task(dvdy, name='dvdy')
+snapshots.add_task(dwdz, name='dwdz')
+snapshots.add_task(dwdy, name='dwdy')
 snapshots.add_task(dTdz, name='dTdz')
 snapshots.add_task(dTdy, name='dTdy')
 
 
 #2D slicing from the 3D data, every sim_dt=1
-snapshots_2D = solver.evaluator.add_file_handler('snapshots_channel_2D',sim_dt=0.2,max_writes=4000, mode=file_handler_mode)
+snapshots_2D = solver.evaluator.add_file_handler('snapshots_channel_2D',sim_dt=1,max_writes=25000, mode=file_handler_mode)
 snapshots_2D.add_task(u(x=0), name='u_yz')
 snapshots_2D.add_task(u(z=0), name='u_xy')
 snapshots_2D.add_task(u(y=0), name='u_xz_mid')
