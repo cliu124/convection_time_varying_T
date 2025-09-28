@@ -115,7 +115,7 @@ problem.add_equation("trace(grad_u) + tau_p = 0")
 problem.add_equation("dt(u) - 1/Re*div(grad_u) + grad(p) + lift(tau_u2)-Ri*T*ez=-dPdx*ex -dot(u,grad(u))")
 problem.add_equation("dt(T) - 1/(Re*Pr)*div(grad_T) + lift(tau_T2)+ 0.5*u@ez = - u@grad(T)")
 problem.add_equation("T(y=+1)=0")
-problem.add_equation("T(y=-1)=Delta_T*sin(kz_Delta_T*z)")
+problem.add_equation("T(y=-1)-Delta_T*sin(kz_Delta_T*z)=0")
 
 problem.add_equation("u(y=-1) = 0") # change from -1 to -0.5
 problem.add_equation("u(y=+1) = 0") #change from 1 to 0.5
