@@ -8,6 +8,7 @@ logger = logging.getLogger(__name__)
 #### Parameters ###
 
 flow_regime='laminar_cou'
+
 if flow_regime=='laminar_poi':
     Re=350
     Ri=1    
@@ -23,8 +24,9 @@ elif flow_regime=='laminar_cou':
     kappa=0.1 #parameter in g_w(t)
     g_w = lambda A: 1-np.exp(-kappa*A) #deceleration
     #g_w = lambda A: np.exp(-kappa*A) #acceleration
-
-
+    restart=0
+    checkpoint_path='/' #If restart, add the checkpoint path here. 
+ 
 elif flow_regime=='turbulence':
     Re_tau=180
     Ri_tau=120
