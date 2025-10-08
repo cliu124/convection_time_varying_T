@@ -125,7 +125,7 @@ else:
         u['g'][0] = (1-y**2) #+ np.random.randn(*u['g'][0].shape) * 1e-6*np.sin(np.pi*(y+1)*0.5)
     
     elif flow_regime=='laminar_cou':
-	np.random.seed(0)
+        np.random.seed(0)
         u['g'][0] = y #+ np.random.randn(*u['g'][0].shape) * 1e-6*np.sin(np.pi*(y+1)*0.5)
 
     elif flow_regime=='turbulence': 
