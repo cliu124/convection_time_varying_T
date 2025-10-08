@@ -84,10 +84,6 @@ dvdy = dy(u @ ey)   # ∂v/∂y
 dwdz = dz(u @ ez)
 dwdy = dy(u @ ez)
 
-dTdz = dz(T)   # ∂T/∂z
-dTdy = dy(T)   # ∂T/∂y 
-
-
 problem = d3.IVP([p, u, tau_p, tau_u1, tau_u2], namespace=locals())
 problem.namespace.update({'t':problem.time})
 problem.add_equation("trace(grad_u) + tau_p = 0")
@@ -163,15 +159,13 @@ else:
 snapshots = solver.evaluator.add_file_handler('snapshots_channel', sim_dt=1, max_writes=5000, mode=file_handler_mode)
 for field in solver.state:
     snapshots.add_task(field)
-#Add gradient for u, v, and T that will be used as base state for input-output    
+#Add gradient for u, v, and w that will be used as base state for input-output    
 snapshots.add_task(dudz, name='dudz')
 snapshots.add_task(dudy, name='dudy')
 snapshots.add_task(dvdz, name='dvdz')
 snapshots.add_task(dvdy, name='dvdy')
 snapshots.add_task(dwdz, name='dwdz')
 snapshots.add_task(dwdy, name='dwdy')
-snapshots.add_task(dTdz, name='dTdz')
-snapshots.add_task(dTdy, name='dTdy')
 
 
 #2D slicing from the 3D data, every sim_dt=1
