@@ -89,7 +89,7 @@ problem.namespace.update({'t':problem.time})
 problem.add_equation("trace(grad_u) + tau_p = 0")
 
 #decomposed temperature version
-problem.add_equation("dt(u) - 1/Re*div(grad_u) + grad(p) + lift(tau_u2)-Ri*T*ez=-dPdx*ex -dot(u,grad(u))")
+problem.add_equation("dt(u) - 1/Re*div(grad_u) + grad(p) + lift(tau_u2)=-dPdx*ex -dot(u,grad(u))")
 
 problem.add_equation("(u@ex)(y=+1) = g_w(t)") #
 problem.add_equation("(u@ex)(y=-1) = -g_w(t)") #
