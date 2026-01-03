@@ -111,8 +111,8 @@ problem.add_equation("(u@ez)(y=-1) = 0") # change from -1 to -0.5
 problem.add_equation("(u@ez)(y=+1) = 0") #change from 1 to 0.5
 
 #vertical v velocity is equal to d eta/dt
-problem.add_equation("(u@ey)(y=-1) - d_eta_bottom = 0") # change from -1 to -0.5
-problem.add_equation("(u@ey)(y=+1) - d_eta_top = 0") #change from 1 to 0.5
+problem.add_equation(" d_eta_bottom = (u@ey)(y=-1)") # change from -1 to -0.5
+problem.add_equation(" d_eta_top = (u@ey)(y=+1)") #change from 1 to 0.5
 
 #add the coupling equation to solve eta from pressure
 problem.add_equation("dt(eta_bottom) - d_eta_bottom = 0 ") # change from -1 to -0.5
