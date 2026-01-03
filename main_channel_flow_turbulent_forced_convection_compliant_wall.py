@@ -14,8 +14,8 @@ Re_tau=180
 
 #Pr=0.71 #Prandtl number
 
-A=0 #[0.1,0.2,0.3,0.4,0.5] pressure gradient oscillation amplitude
-omega=0.2 #[0.1,0.2,0.5,1,2,5] pressure gradient oscillation frequency
+#A=0 #[0.1,0.2,0.3,0.4,0.5] pressure gradient oscillation amplitude
+#omega=0.2 #[0.1,0.2,0.5,1,2,5] pressure gradient oscillation frequency
 
 ### domain size
 #Lx, Ly, Lz = (0.6*np.pi, 2.0, 0.18*np.pi) #Re_tau=180, minimal box
@@ -23,15 +23,15 @@ Lx, Ly, Lz = (4.0*np.pi, 2.0, 2.0*np.pi) #Re_tau=180, regular box
 #Lx, Ly, Lz = (2.0*np.pi, 2.0, np.pi) #Re_tau=550, Hoyas's thermal box
 
 ### resolutions
-nx, ny, nz = 32, 32, 32 #54, 129, 42
+#nx, ny, nz = 32, 32, 32 #54, 129, 42
 #nx, ny, nz = 192, 129, 160 #Re_tau=180, Kim Moin and Moser resolution. 
-#nx, ny, nz = 192, 258, 160 #Re_tau=180, double the vertical resolution
+nx, ny, nz = 192, 258, 160 #Re_tau=180, double the vertical resolution
 
 #nx, ny, nz = 288, 512, 240 #Re_tau =550, Lx=2pi, Lz=pi Hoyas box. 
 #nx, ny, nz = 256, 416, 240 #Re_tau=550, parallel in y direction. Fourier direction
 
 
-restart=0
+restart=1
 checkpoint_path='/scratch/changliu0520/dedalus_10424250/snapshots_channel/snapshots_channel_s1.h5'
 load_time= 99
 
