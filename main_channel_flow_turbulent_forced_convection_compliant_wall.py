@@ -89,7 +89,7 @@ sin = lambda A: np.sin(A)
 
 
 #problem = d3.IVP([p, u, T, tau_p, tau_u1, tau_u2, tau_T1, tau_T2], namespace=locals())
-problem = d3.IVP([p, u, tau_p, tau_u1, tau_u2], namespace=locals())
+problem = d3.IVP([p, u, tau_p, tau_u1, tau_u2, eta_top, eta_bottom, d_eta_top, d_eta_bottom], namespace=locals())
 
 problem.namespace.update({'t':problem.time})
 problem.add_equation("trace(grad_u) + tau_p = 0")
@@ -110,10 +110,6 @@ problem.add_equation("(u@ex)(y=+1) = 0") #change from 1 to 0.5
 problem.add_equation("(u@ez)(y=-1) = 0") # change from -1 to -0.5
 problem.add_equation("(u@ez)(y=+1) = 0") #change from 1 to 0.5
 
-#vertical v velocity is equal to d eta/dt
-problem.add_equation(" d_eta_bottom = (u@ey)(y=-1)") # change from -1 to -0.5
-problem.add_equation(" d_eta_top = (u@ey)(y=+1)") #change from 1 to 0.5
-
 #add the coupling equation to solve eta from pressure
 problem.add_equation("dt(eta_bottom) - d_eta_bottom = 0 ") # change from -1 to -0.5
 problem.add_equation("dt(eta_top) - d_eta_top = 0") #change from 1 to 0.5
@@ -121,6 +117,9 @@ problem.add_equation("dt(eta_top) - d_eta_top = 0") #change from 1 to 0.5
 problem.add_equation("Cm*dt(d_eta_bottom)+Cd*d_eta_bottom+Ck*eta_bottom = -p(y=-1)") # change from -1 to -0.5
 problem.add_equation("Cm*dt(d_eta_top)+Cd*d_eta_top+Ck*eta_top = -p(y=1)") # change from -1 to -0.5
 
+#vertical v velocity is equal to d eta/dt
+problem.add_equation(" d_eta_bottom = (u@ey)(y=-1)") # 
+problem.add_equation(" d_eta_top = (u@ey)(y=+1)") #
 
 # Build Solver
 dt = 0.0005 # 0.001
