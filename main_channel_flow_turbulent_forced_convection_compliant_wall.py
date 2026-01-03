@@ -49,12 +49,12 @@ ybasis = d3.Chebyshev(coords['y'], size=ny, bounds=(-Ly/2, Ly/2), dealias=3/2)
 
 # Fields
 p = dist.Field(name='p', bases=(xbasis,ybasis,zbasis))
-T = dist.Field(name='T', bases=(xbasis,ybasis,zbasis))
+#T = dist.Field(name='T', bases=(xbasis,ybasis,zbasis))
 u = dist.VectorField(coords, name='u', bases=(xbasis,ybasis,zbasis))
 tau_u1 = dist.VectorField(coords, name='tau_u1', bases=(xbasis,zbasis))
 tau_u2 = dist.VectorField(coords, name='tau_u2', bases=(xbasis,zbasis))
-tau_T1 = dist.Field(name='tau_T1', bases=(xbasis,zbasis))
-tau_T2 = dist.Field(name='tau_T2', bases=(xbasis,zbasis))
+#tau_T1 = dist.Field(name='tau_T1', bases=(xbasis,zbasis))
+#tau_T2 = dist.Field(name='tau_T2', bases=(xbasis,zbasis))
 tau_p = dist.Field(name='tau_p')
 
 #new variables and parameters for compliant wall DNS. 
@@ -79,7 +79,7 @@ ex, ey, ez = coords.unit_vector_fields(dist)
 lift_basis = ybasis.derivative_basis(1) # Chebyshev U basis
 lift = lambda A: d3.Lift(A, lift_basis, -1) # Shortcut for multiplying by U_{N-1}(y)
 grad_u = d3.grad(u) - ey*lift(tau_u1) # Operator representing G
-grad_T = d3.grad(T) - ey*lift(tau_T1) # First-order reduction
+#grad_T = d3.grad(T) - ey*lift(tau_T1) # First-order reduction
 x_average = lambda A: d3.Average(A,'x')
 xz_average = lambda A: d3.Average(d3.Average(A, 'x'), 'z')
 vol_average = lambda A: d3.Average(d3.Average(d3.Average(A, 'x'), 'z'),'y')
@@ -88,19 +88,21 @@ sin = lambda A: np.sin(A)
 # Problem
 
 
-problem = d3.IVP([p, u, T, tau_p, tau_u1, tau_u2, tau_T1, tau_T2], namespace=locals())
+#problem = d3.IVP([p, u, T, tau_p, tau_u1, tau_u2, tau_T1, tau_T2], namespace=locals())
+problem = d3.IVP([p, u, tau_p, tau_u1, tau_u2], namespace=locals())
+
 problem.namespace.update({'t':problem.time})
 problem.add_equation("trace(grad_u) + tau_p = 0")
-problem.add_equation("dt(u) - 1/Re_tau*div(grad_u) + grad(p) + lift(tau_u2) =-dPdx*(1+A*sin(omega*(t-load_time)))*ex -dot(u,grad(u))")
-problem.add_equation("dt(T) - 1/(Re_tau*Pr)*div(grad_T) + lift(tau_T2) = - u@grad(T) + (u@ex)/vol_average(u@ex)")
+problem.add_equation("dt(u) - 1/Re_tau*div(grad_u) + grad(p) + lift(tau_u2) =-dPdx*ex -dot(u,grad(u))")
+#problem.add_equation("dt(T) - 1/(Re_tau*Pr)*div(grad_T) + lift(tau_T2) = - u@grad(T) + (u@ex)/vol_average(u@ex)")
 
 #These are velocity vector equal to zero
 #problem.add_equation("u(y=-1) = 0") # change from -1 to -0.5
 #problem.add_equation("u(y=+1) = 0") #change from 1 to 0.5
 problem.add_equation("integ(p) = 0")
 #problem.add_equation("T(y=+1)=A0+A*sin(omega*t)")
-problem.add_equation("T(y=+1)=0")
-problem.add_equation("T(y=-1)=0")
+#problem.add_equation("T(y=+1)=0")
+#problem.add_equation("T(y=-1)=0")
 
 #we have u and w equal to zero at the boundary
 problem.add_equation("(u@ex)(y=-1) = 0") # change from -1 to -0.5
