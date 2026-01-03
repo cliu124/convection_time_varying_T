@@ -23,9 +23,9 @@ Lx, Ly, Lz = (4.0*np.pi, 2.0, 2.0*np.pi) #Re_tau=180, regular box
 #Lx, Ly, Lz = (2.0*np.pi, 2.0, np.pi) #Re_tau=550, Hoyas's thermal box
 
 ### resolutions
-#nx, ny, nz = 48, 64, 42 #54, 129, 42
+nx, ny, nz = 32, 32, 32 #54, 129, 42
 #nx, ny, nz = 192, 129, 160 #Re_tau=180, Kim Moin and Moser resolution. 
-nx, ny, nz = 192, 258, 160 #Re_tau=180, double the vertical resolution
+#nx, ny, nz = 192, 258, 160 #Re_tau=180, double the vertical resolution
 
 #nx, ny, nz = 288, 512, 240 #Re_tau =550, Lx=2pi, Lz=pi Hoyas box. 
 #nx, ny, nz = 256, 416, 240 #Re_tau=550, parallel in y direction. Fourier direction
