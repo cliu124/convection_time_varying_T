@@ -118,8 +118,8 @@ problem.add_equation("Cm*dt(d_eta_bottom)+Cd*d_eta_bottom+Ck*eta_bottom = -p(y=-
 problem.add_equation("Cm*dt(d_eta_top)+Cd*d_eta_top+Ck*eta_top = -p(y=1)") # change from -1 to -0.5
 
 #vertical v velocity is equal to d eta/dt
-problem.add_equation(" d_eta_bottom = (u@ey)(y=-1)") # 
-problem.add_equation(" d_eta_top = (u@ey)(y=+1)") #
+problem.add_equation(" d_eta_bottom -(u@ey)(y=-1) = 0") # 
+problem.add_equation(" d_eta_top -(u@ey)(y=+1) = 0") #
 
 # Build Solver
 dt = 0.0005 # 0.001
