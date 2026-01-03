@@ -156,7 +156,7 @@ if not restart:
     #T['g']=u['g'][0]
     file_handler_mode = 'overwrite'
 else:
-    write, initial_timestep = solver.load_state(checkpoint_path)
+    write, initial_timestep = solver.load_state(checkpoint_path,allow_missing=True)
     file_handler_mode = 'append'
 
 
