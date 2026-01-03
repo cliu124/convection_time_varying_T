@@ -153,7 +153,7 @@ for j in range(0, len(y[0])):
     
 if not restart:
     u['g'][0]=U_plus[np.newaxis, :, np.newaxis]+np.random.randn(*u['g'][0].shape) * 1e-6*np.sin(np.pi*(y+1)*0.5)
-    T['g']=u['g'][0]
+    #T['g']=u['g'][0]
     file_handler_mode = 'overwrite'
 else:
     write, initial_timestep = solver.load_state(checkpoint_path)
