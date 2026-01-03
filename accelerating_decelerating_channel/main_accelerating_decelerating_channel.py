@@ -22,8 +22,8 @@ elif flow_regime=='laminar_cou':
     Lx,Ly,Lz=(0.6*np.pi,2.0, 2*np.pi)
     nx,ny,nz=(8,64,48)
     kappa=0.1 #parameter in g_w(t)
-    g_w = lambda A: 1-np.exp(-kappa*A) #deceleration
-    #g_w = lambda A: np.exp(-kappa*A) #acceleration
+    g_w = lambda A: 1-np.exp(-kappa*A) #acceleration
+    #g_w = lambda A: np.exp(-kappa*A) #deceleration
     restart=0
     checkpoint_path='/' #If restart, add the checkpoint path here. 
  
@@ -106,7 +106,7 @@ problem.add_equation("integ(p) = 0")
 
 # Build Solver
 dt = 0.0005 # 0.001
-stop_sim_time = 5000
+stop_sim_time = 500
 solver = problem.build_solver(timestepper)
 solver.stop_sim_time = stop_sim_time
 
