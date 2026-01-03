@@ -31,7 +31,7 @@ nx, ny, nz = 192, 258, 160 #Re_tau=180, double the vertical resolution
 #nx, ny, nz = 256, 416, 240 #Re_tau=550, parallel in y direction. Fourier direction
 
 
-restart=1
+restart=0
 checkpoint_path='/scratch/changliu0520/dedalus_10424250/snapshots_channel/snapshots_channel_s1.h5'
 load_time= 99
 
@@ -58,15 +58,21 @@ tau_u2 = dist.VectorField(coords, name='tau_u2', bases=(xbasis,zbasis))
 tau_p = dist.Field(name='tau_p')
 
 #new variables and parameters for compliant wall DNS. 
-eta_top = dist.Field(name='eta_top',bases=(xbasis,zbasis)) #top wall displacement of the compliant wall DNS
+#eta_top = dist.Field(name='eta_top',bases=(xbasis,zbasis)) #top wall displacement of the compliant wall DNS
 eta_bottom = dist.Field(name='eta_bottom',bases=(xbasis,zbasis))# bottom wall displacement of the compliant wall DNS
 
-d_eta_top = dist.Field(name='d_eta_top',bases=(xbasis,zbasis)) #top wall displacement of the compliant wall DNS
+#d_eta_top = dist.Field(name='d_eta_top',bases=(xbasis,zbasis)) #top wall displacement of the compliant wall DNS
 d_eta_bottom = dist.Field(name='d_eta_bottom',bases=(xbasis,zbasis))# bottom wall displacement of the compliant wall DNS
 
+
+#Re_tau=180, SIOA-e near-wall optimized, Cd=-2.93, Ck=28859
+#Re_tau=180, SIOA-e VLSM optimized, Cd=0.1, Ck=498.48
+#Re_tau=2000, IOA-e near-wall optimized, Cd=-4.1, Ck=2.9e4
+#Re_tau=2000, SIOA-e near-wall optimized, Cd=0.9, Ck=2.9e4 
+
 Cm=2 #mass coefficient
-Cd=-2.93 #damping coefficient
-Ck=28859 #stiffness coefficient
+Cd=0.9 #damping coefficient
+Ck=29000 #stiffness coefficient
 Cb=0 #bending coefficient
 Ct=0 #tension coefficient
 
@@ -89,7 +95,9 @@ sin = lambda A: np.sin(A)
 
 
 #problem = d3.IVP([p, u, T, tau_p, tau_u1, tau_u2, tau_T1, tau_T2], namespace=locals())
-problem = d3.IVP([p, u, tau_p, tau_u1, tau_u2, eta_top, eta_bottom, d_eta_top, d_eta_bottom], namespace=locals())
+#problem = d3.IVP([p, u, tau_p, tau_u1, tau_u2, eta_top, eta_bottom, d_eta_top, d_eta_bottom], namespace=locals())
+problem = d3.IVP([p, u, tau_p, tau_u1, tau_u2, eta_bottom, d_eta_bottom], namespace=locals())
+
 
 problem.namespace.update({'t':problem.time})
 problem.add_equation("trace(grad_u) + tau_p = 0")
@@ -110,16 +118,21 @@ problem.add_equation("(u@ex)(y=+1) = 0") #change from 1 to 0.5
 problem.add_equation("(u@ez)(y=-1) = 0") # change from -1 to -0.5
 problem.add_equation("(u@ez)(y=+1) = 0") #change from 1 to 0.5
 
+#top wall, no-penetration
+problem.add_equation("(u@ey)(y=1) = 0")
+
+#bottom wall, coupled with the spring-damping model. 
 #add the coupling equation to solve eta from pressure
 problem.add_equation("dt(eta_bottom) - d_eta_bottom = 0 ") # change from -1 to -0.5
-problem.add_equation("dt(eta_top) - d_eta_top = 0") #change from 1 to 0.5
+#problem.add_equation("dt(eta_top) - d_eta_top = 0") #change from 1 to 0.5
 
-problem.add_equation("Cm*dt(d_eta_bottom)+Cd*d_eta_bottom+Ck*eta_bottom = -p(y=-1)") # change from -1 to -0.5
-problem.add_equation("Cm*dt(d_eta_top)+Cd*d_eta_top+Ck*eta_top = -p(y=1)") # change from -1 to -0.5
+problem.add_equation("Cm*dt(d_eta_bottom) + Cd*d_eta_bottom + Ck*eta_bottom + p(y=-1) = 0") # change from -1 to -0.5
+#problem.add_equation("Cm*dt(d_eta_top)+Cd*d_eta_top+Ck*eta_top = -p(y=1)") # change from -1 to -0.5
 
 #vertical v velocity is equal to d eta/dt
 problem.add_equation(" d_eta_bottom -(u@ey)(y=-1) = 0") # 
-problem.add_equation(" d_eta_top -(u@ey)(y=+1) = 0") #
+#problem.add_equation(" d_eta_top -(u@ey)(y=+1) = 0") #
+
 
 # Build Solver
 dt = 0.0005 # 0.001
