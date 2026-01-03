@@ -177,12 +177,12 @@ snapshots_2D.add_task(u(y=(-1+5/Re_tau)), name='u_xz_viscous')
 snapshots_2D.add_task(u(y=(-1+15/Re_tau)), name='u_xz_buffer')
 snapshots_2D.add_task(u(y=(-1+50/Re_tau)), name='u_xz_log')
 
-snapshots_2D.add_task(T(x=0), name='T_yz')
-snapshots_2D.add_task(T(z=0), name='T_xy')
-snapshots_2D.add_task(T(y=0), name='T_xz_mid')
-snapshots_2D.add_task(T(y=(-1+5/Re_tau)), name='T_xz_viscous')
-snapshots_2D.add_task(T(y=(-1+15/Re_tau)), name='T_xz_buffer')
-snapshots_2D.add_task(T(y=(-1+50/Re_tau)), name='T_xz_log')
+#snapshots_2D.add_task(T(x=0), name='T_yz')
+#snapshots_2D.add_task(T(z=0), name='T_xy')
+#snapshots_2D.add_task(T(y=0), name='T_xz_mid')
+#snapshots_2D.add_task(T(y=(-1+5/Re_tau)), name='T_xz_viscous')
+#snapshots_2D.add_task(T(y=(-1+15/Re_tau)), name='T_xz_buffer')
+#snapshots_2D.add_task(T(y=(-1+50/Re_tau)), name='T_xz_log')
 
 #1D statistics, every sim_dt=0.1
 snapshots_stress = solver.evaluator.add_file_handler('snapshots_channel_stress', sim_dt=0.01, max_writes=40000,mode=file_handler_mode)
@@ -195,13 +195,13 @@ snapshots_stress.add_task(xz_average(((u-xz_average(u))@ey)**2),name = 'v_prime_
 snapshots_stress.add_task(xz_average(((u-xz_average(u))@ez)**2),name = 'w_prime_w_prime')
 snapshots_stress.add_task(xz_average(((u-xz_average(u))@ex)*(u-xz_average(u))@ey),name = 'u_prime_v_prime')
 
-snapshots_stress.add_task(xz_average(T),name = 'T_bar')
-snapshots_stress.add_task(xz_average(d3.grad(T)@ey),name = 'dTdy')
-snapshots_stress.add_task(vol_average((u@ex)*T)/vol_average(u@ex),name = 'T_bulk')
-snapshots_stress.add_task(xz_average((T-xz_average(T))**2),name = 'T_prime_T_prime')
-snapshots_stress.add_task(xz_average(((u-xz_average(u))@ex)*(T-xz_average(T))),name = 'u_prime_T_prime')
-snapshots_stress.add_task(xz_average(((u-xz_average(u))@ey)*(T-xz_average(T))),name = 'v_prime_T_prime')
-snapshots_stress.add_task(xz_average(((u-xz_average(u))@ez)*(T-xz_average(T))),name = 'w_prime_T_prime')
+#snapshots_stress.add_task(xz_average(T),name = 'T_bar')
+#snapshots_stress.add_task(xz_average(d3.grad(T)@ey),name = 'dTdy')
+#snapshots_stress.add_task(vol_average((u@ex)*T)/vol_average(u@ex),name = 'T_bulk')
+#snapshots_stress.add_task(xz_average((T-xz_average(T))**2),name = 'T_prime_T_prime')
+#snapshots_stress.add_task(xz_average(((u-xz_average(u))@ex)*(T-xz_average(T))),name = 'u_prime_T_prime')
+#snapshots_stress.add_task(xz_average(((u-xz_average(u))@ey)*(T-xz_average(T))),name = 'v_prime_T_prime')
+#snapshots_stress.add_task(xz_average(((u-xz_average(u))@ez)*(T-xz_average(T))),name = 'w_prime_T_prime')
 
 #snapshots_thermal = solver.evaluator.add_file_handler('snapshots_channel_thermal',sim_dt=0.1,max_writes=40000)
 
@@ -215,7 +215,7 @@ CFL.add_velocity(u) # changed threshold from 0.05 to 0.01
 flow = d3.GlobalFlowProperty(solver, cadence=20) # changed cadence from 10 to 50
 flow.add_property(np.sqrt((u-xz_average(u))@(u-xz_average(u)))/2, name='TKE')
 
-flow.add_property(xz_average(T), name='T_bar')
+#flow.add_property(xz_average(T), name='T_bar')
 flow.add_property(xz_average(u@ex), name='u_bar')
 
 
@@ -228,10 +228,10 @@ try:
         solver.step(timestep)
         if (solver.iteration-1) % 10 == 0:
             TKE_max = flow.max('TKE')
-            T_bar_max = flow.max('T_bar')
+            #T_bar_max = flow.max('T_bar')
             u_bar_max = flow.max('u_bar')
 
-            logger.info('Iteration=%i, Time=%e, dt=%e, max(TKE)=%f, max(u_bar)=%f, max(T_bar)=%f' %(solver.iteration, solver.sim_time, timestep, TKE_max, u_bar_max, T_bar_max))
+            logger.info('Iteration=%i, Time=%e, dt=%e, max(TKE)=%f, max(u_bar)=%f' %(solver.iteration, solver.sim_time, timestep, TKE_max, u_bar_max))
 except:
     logger.error('Exception raised, triggering end of main loop.')
     raise
