@@ -31,7 +31,7 @@ nx, ny, nz = 192, 258, 160 #Re_tau=180, double the vertical resolution
 #nx, ny, nz = 256, 416, 240 #Re_tau=550, parallel in y direction. Fourier direction
 
 
-restart=0
+restart=1
 checkpoint_path='/scratch/changliu0520/dedalus_10424250/snapshots_channel/snapshots_channel_s1.h5'
 load_time= 99
 
@@ -66,9 +66,9 @@ d_eta_bottom = dist.Field(name='d_eta_bottom',bases=(xbasis,zbasis))# bottom wal
 
 
 #Re_tau=180, SIOA-e near-wall optimized, Cd=-2.93, Ck=28859
-#Re_tau=180, SIOA-e VLSM optimized, Cd=0.1, Ck=498.48
-#Re_tau=2000, IOA-e near-wall optimized, Cd=-4.1, Ck=2.9e4
-#Re_tau=2000, SIOA-e near-wall optimized, Cd=0.9, Ck=2.9e4 
+#Re_tau=180, SIOA-e VLSM optimized, Cd=0.10, Ck=498.48
+#Re_tau=2000, IOA-e near-wall optimized, Cd=-4.14, Ck=28939
+#Re_tau=2000, SIOA-e near-wall optimized, Cd=0.91, Ck=28939 
 
 Cm=2 #mass coefficient
 Cd=0.9 #damping coefficient
