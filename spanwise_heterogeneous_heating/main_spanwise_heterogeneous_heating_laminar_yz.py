@@ -18,7 +18,7 @@ if flow_regime=='laminar':
     Ri=1 #unstable stratified. 
     dPdx = -2/Re
     Lx,Ly,Lz=(0.6*np.pi,2.0, 2*np.pi)
-    nx,ny,nz=(8,64,48)
+    nx,ny,nz=(8,128,128)
 
 elif flow_regime=='turbulence':
     Re_tau=180

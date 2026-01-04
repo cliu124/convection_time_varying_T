@@ -84,10 +84,14 @@ for k = 1:numel(fn)
     %transpose to make different rows are different y, and vectorize it so
     %it can be directly used in input-output analysis. 
     mean_IO_vec.(field)=reshape(transpose(mean_IO.(field)),Ny*Nz,1);
+
+    %make the diagonal matrix a sparse objective. 
+    mean_IO_vec_diag.(field)=spdiags(mean_IO_vec.(field),0,N,N);
+
 end
 
 [x,w] = clencurt(Ny-1);
-w = kron(Iz,diag(w));
+w = kron(Iz,spdiags(w',0,Ny,Ny));
 weight=blkdiag(w.^0.5,w.^0.5,w.^0.5,w.^0.5);
 inv_weight=inv(weight);
 
@@ -125,26 +129,26 @@ for kx_ind=1:length(kx_list) % 48
     laplacian = -kx^2*kron(Iz,Iy) + DM_2D.Dyy + DM_2D.Dzz;
 
     %advection term that is common term in diagonal of A matrix.
-    L_A = -diag(mean_IO_vec.u)*1i*kx-diag(mean_IO_vec.v)*DM_2D.Dy-diag(mean_IO_vec.w)*DM_2D.Dz;
+    L_A = -mean_IO_vec_diag.u*1i*kx-mean_IO_vec_diag.v*DM_2D.Dy-mean_IO_vec_diag.w*DM_2D.Dz;
 
     %u momentum equation
     A11 = L_A + 1/Re.*laplacian;
-    A12 = -diag(mean_IO_vec.dudy);
-    A13 = -diag(mean_IO_vec.dudz);
+    A12 = -mean_IO_vec_diag.dudy;
+    A13 = -mean_IO_vec_diag.dudz;
     A14 = -1i*kx*I;
     A15 = Z; %sparse zero matrix
 
     %v momentum equation
     A21 = Z;
-    A22 = L_A + 1/Re*laplacian-diag(mean_IO_vec.dvdy);
-    A23 = -diag(mean_IO_vec.dvdz);
+    A22 = L_A + 1/Re*laplacian-mean_IO_vec_diag.dvdy;
+    A23 = -mean_IO_vec_diag.dvdz;
     A24 = -DM_2D.Dy;
     A25 = Ri*I;
 
     %w momentum equation
     A31 = Z;
-    A32 = -diag(mean_IO_vec.dwdy);
-    A33 = L_A + 1/Re*laplacian-diag(mean_IO_vec.dwdz);
+    A32 = -mean_IO_vec_diag.dwdy;
+    A33 = L_A + 1/Re*laplacian-mean_IO_vec_diag.dwdz;
     A34 = -DM_2D.Dz;
     A35 = Z;
 
@@ -157,8 +161,8 @@ for kx_ind=1:length(kx_list) % 48
 
     %temperature equation
     A51 = Z;
-    A52 = -diag(mean_IO_vec.dTdy)+0.5*I; %change the sign before 0.5*I to make it unstable stratified. 
-    A53 = -diag(mean_IO_vec.dTdz);
+    A52 = -mean_IO_vec_diag.dTdy+0.5*I; %change the sign before 0.5*I to make it unstable stratified. 
+    A53 = -mean_IO_vec_diag.dTdz;
     A54 = Z;
     A55 = L_A + 1/(Re*Pr)*laplacian;
 
@@ -168,68 +172,88 @@ for kx_ind=1:length(kx_list) % 48
         A41 A42 A43 A44 A45; 
         A51 A52 A53 A54 A55];
 
+    %vectorized implementation of the boundary condition
+
+    
+    % Boundary row indices (3) vectorized
+    topRows    = (0:Nz-1)*Ny + 1;
+    bottomRows = (1:Nz)*Ny;
+    bd = [topRows, bottomRows];
+
+    % (3) Vectorized boundary enforcement on A, and zero same rows in B & E
+    %bd_all = [bd, bd+N, bd+2*N];  % u,v,w rows in 4N system
+    % zero rows then set diagonal entry to 1 on those rows & their variable blocks
+    A(bd, :)        = 0;  A(sub2ind([5*N,5*N], bd, bd)) = 1;
+    A(bd+N, :)      = 0;  A(sub2ind([5*N,5*N], bd+N, bd+N)) = 1;
+    A(bd+2*N, :)    = 0;  A(sub2ind([5*N,5*N], bd+2*N, bd+2*N)) = 1;
+    A(bd+4*N, :)    = 0;  A(sub2ind([5*N,5*N], bd+4*N, bd+4*N)) = 1;
+  
+    B(bd, :)        = 0;  B(bd+N, :) = 0;  B(bd+2*N, :) = 0; B(bd+4*N, :) = 0;
+    E(bd, :)        = 0;  E(bd+N, :) = 0;  E(bd+2*N, :) = 0; E(bd+4*N, :) = 0;
+
+
     % Boundary Conditions
-
-    for z_ind = 0:Nz-1
-        % u Boundary Condition
-        % u(y=1,z)=0
-        A(1+z_ind*Ny,:) = 0;
-        A(1+z_ind*Ny, 1+z_ind*Ny:(z_ind+1)*Ny) = [1,zeros(1,Ny-1)];  %+ Ls_u*D1(1,:); %This should be +Ls, because on the top wall y=1, B.C. should be u_s=-Ls*du/dy
-
-        % u(y=-1,z)=0
-        A(Ny+z_ind*Ny,:) = 0;
-        A(Ny+z_ind*Ny, 1+z_ind*Ny:(z_ind+1)*Ny) = [zeros(1,Ny-1),1]; %- Ls_u*D1(N,:); %at bottom wall y=-1, B.C. is u_s=Ls*du/dy
-
-        % V Boundary Condition
-        % v(y=1,z)=0
-        A(N+1+z_ind*Ny, :) = 0;
-        A(N+1+z_ind*Ny, N+1+z_ind*Ny:N+(z_ind+1)*Ny) = [1,zeros(1,Ny-1)];  %+ Ls_u*D1(1,:); %This should be +Ls, because on the top wall y=1, B.C. should be u_s=-Ls*du/dy
-
-        % v(y=-1,z)=0
-        A(N+Ny+z_ind*Ny, :) = 0;
-        A(N+Ny+z_ind*Ny, N+1+z_ind*Ny:N+(z_ind+1)*Ny) = [zeros(1,Ny-1),1]; %- Ls_u*D1(N,:); %at bottom wall y=-1, B.C. is u_s=Ls*du/dy
-
-        % W Boundary Condition
-        % w(y=1,z)=0
-        A(2*N+1+z_ind*Ny, :) = 0;
-        A(2*N+1+z_ind*Ny, 2*N+1+z_ind*Ny:2*N+(z_ind+1)*Ny) = [1,zeros(1,Ny-1)];  %+ Ls_u*D1(1,:); %This should be +Ls, because on the top wall y=1, B.C. should be u_s=-Ls*du/dy
-
-        % w(y=-1,z)=0
-        A(2*N+Ny+z_ind*Ny, :) = 0;
-        A(2*N+Ny+z_ind*Ny, 2*N+1+z_ind*Ny:2*N+(z_ind+1)*Ny ) = [zeros(1,Ny-1),1]; %- Ls_u*D1(N,:); %at bottom wall y=-1, B.C. is u_s=Ls*du/dy
-
-        %T boundary condition
-        % theta(y=1,z)=0
-        A(4*N+1+z_ind*Ny, :) = 0;
-        A(4*N+1+z_ind*Ny, 4*N+1+z_ind*Ny:4*N+(z_ind+1)*Ny) = [1,zeros(1,Ny-1)];  %+ Ls_u*D1(1,:); %This should be +Ls, because on the top wall y=1, B.C. should be u_s=-Ls*du/dy
-
-        % theta(y=-1,z)=0. Here, non-homogeneous term already been
-        % incorporated into the base state, such as horizontal convection
-        % roll. 
-        A(4*N+Ny+z_ind*Ny, :) = 0;
-        A(4*N+Ny+ z_ind*Ny, 4*N+1+z_ind*Ny:4*N+(z_ind+1)*Ny) = [zeros(1,Ny-1),1]; %- Ls_u*D1(N,:); %at bottom wall y=-1, B.C. is u_s=Ls*du/dy
-
-        % B Matrix
-        B(1 + z_ind*Ny,:) = 0;
-        B(Ny+ z_ind*Ny,:) = 0;
-        B(N+1+z_ind*Ny,:) = 0;
-        B(N+Ny+ z_ind*Ny,:) = 0;
-        B(2*N+1+z_ind*Ny,:) = 0;
-        B(2*N+Ny+ z_ind*Ny,:) = 0;
-        B(4*N+1+z_ind*Ny,:) = 0;
-        B(4*N+Ny+z_ind*Ny,:) = 0;
-
-        % E Matrix
-        E(1 + z_ind*Ny,:) = 0;
-        E(Ny+ z_ind*Ny,:) = 0;
-        E(N+1+z_ind*Ny,:) = 0;
-        E(N+Ny+ z_ind*Ny,:) = 0;
-        E(2*N+1+z_ind*Ny,:) = 0;
-        E(2*N+Ny+ z_ind*Ny,:) = 0;
-        E(4*N+1+z_ind*Ny,:) = 0;
-        E(4*N+Ny+ z_ind*Ny,:) = 0;
-
-    end
+    % 
+    % for z_ind = 0:Nz-1
+    %     % u Boundary Condition
+    %     % u(y=1,z)=0
+    %     A(1+z_ind*Ny,:) = 0;
+    %     A(1+z_ind*Ny, 1+z_ind*Ny:(z_ind+1)*Ny) = [1,zeros(1,Ny-1)];  %+ Ls_u*D1(1,:); %This should be +Ls, because on the top wall y=1, B.C. should be u_s=-Ls*du/dy
+    % 
+    %     % u(y=-1,z)=0
+    %     A(Ny+z_ind*Ny,:) = 0;
+    %     A(Ny+z_ind*Ny, 1+z_ind*Ny:(z_ind+1)*Ny) = [zeros(1,Ny-1),1]; %- Ls_u*D1(N,:); %at bottom wall y=-1, B.C. is u_s=Ls*du/dy
+    % 
+    %     % V Boundary Condition
+    %     % v(y=1,z)=0
+    %     A(N+1+z_ind*Ny, :) = 0;
+    %     A(N+1+z_ind*Ny, N+1+z_ind*Ny:N+(z_ind+1)*Ny) = [1,zeros(1,Ny-1)];  %+ Ls_u*D1(1,:); %This should be +Ls, because on the top wall y=1, B.C. should be u_s=-Ls*du/dy
+    % 
+    %     % v(y=-1,z)=0
+    %     A(N+Ny+z_ind*Ny, :) = 0;
+    %     A(N+Ny+z_ind*Ny, N+1+z_ind*Ny:N+(z_ind+1)*Ny) = [zeros(1,Ny-1),1]; %- Ls_u*D1(N,:); %at bottom wall y=-1, B.C. is u_s=Ls*du/dy
+    % 
+    %     % W Boundary Condition
+    %     % w(y=1,z)=0
+    %     A(2*N+1+z_ind*Ny, :) = 0;
+    %     A(2*N+1+z_ind*Ny, 2*N+1+z_ind*Ny:2*N+(z_ind+1)*Ny) = [1,zeros(1,Ny-1)];  %+ Ls_u*D1(1,:); %This should be +Ls, because on the top wall y=1, B.C. should be u_s=-Ls*du/dy
+    % 
+    %     % w(y=-1,z)=0
+    %     A(2*N+Ny+z_ind*Ny, :) = 0;
+    %     A(2*N+Ny+z_ind*Ny, 2*N+1+z_ind*Ny:2*N+(z_ind+1)*Ny ) = [zeros(1,Ny-1),1]; %- Ls_u*D1(N,:); %at bottom wall y=-1, B.C. is u_s=Ls*du/dy
+    % 
+    %     %T boundary condition
+    %     % theta(y=1,z)=0
+    %     A(4*N+1+z_ind*Ny, :) = 0;
+    %     A(4*N+1+z_ind*Ny, 4*N+1+z_ind*Ny:4*N+(z_ind+1)*Ny) = [1,zeros(1,Ny-1)];  %+ Ls_u*D1(1,:); %This should be +Ls, because on the top wall y=1, B.C. should be u_s=-Ls*du/dy
+    % 
+    %     % theta(y=-1,z)=0. Here, non-homogeneous term already been
+    %     % incorporated into the base state, such as horizontal convection
+    %     % roll. 
+    %     A(4*N+Ny+z_ind*Ny, :) = 0;
+    %     A(4*N+Ny+ z_ind*Ny, 4*N+1+z_ind*Ny:4*N+(z_ind+1)*Ny) = [zeros(1,Ny-1),1]; %- Ls_u*D1(N,:); %at bottom wall y=-1, B.C. is u_s=Ls*du/dy
+    % 
+    %     % B Matrix
+    %     B(1 + z_ind*Ny,:) = 0;
+    %     B(Ny+ z_ind*Ny,:) = 0;
+    %     B(N+1+z_ind*Ny,:) = 0;
+    %     B(N+Ny+ z_ind*Ny,:) = 0;
+    %     B(2*N+1+z_ind*Ny,:) = 0;
+    %     B(2*N+Ny+ z_ind*Ny,:) = 0;
+    %     B(4*N+1+z_ind*Ny,:) = 0;
+    %     B(4*N+Ny+z_ind*Ny,:) = 0;
+    % 
+    %     % E Matrix
+    %     E(1 + z_ind*Ny,:) = 0;
+    %     E(Ny+ z_ind*Ny,:) = 0;
+    %     E(N+1+z_ind*Ny,:) = 0;
+    %     E(N+Ny+ z_ind*Ny,:) = 0;
+    %     E(2*N+1+z_ind*Ny,:) = 0;
+    %     E(2*N+Ny+ z_ind*Ny,:) = 0;
+    %     E(4*N+1+z_ind*Ny,:) = 0;
+    %     E(4*N+Ny+ z_ind*Ny,:) = 0;
+    % 
+    % end
 
 
     C_tilde = weight*C ;
