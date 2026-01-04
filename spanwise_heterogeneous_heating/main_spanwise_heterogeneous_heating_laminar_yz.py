@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 flow_regime='laminar'
 if flow_regime=='laminar':
     Re=350
-    Ri=0    
+    Ri=1 #unstable stratified. 
     dPdx = -2/Re
     Lx,Ly,Lz=(0.6*np.pi,2.0, 2*np.pi)
     nx,ny,nz=(8,64,48)
@@ -123,7 +123,7 @@ problem.add_equation("trace(grad_u) + tau_p = 0")
 
 #decomposed temperature version
 problem.add_equation("dt(u) - 1/Re*div(grad_u) + grad(p) + lift(tau_u2)-Ri*T*ez=-dPdx*ex -dot(u,grad(u))")
-problem.add_equation("dt(T) - 1/(Re*Pr)*div(grad_T) + lift(tau_T2)+ 0.5*u@ez = - u@grad(T)")
+problem.add_equation("dt(T) - 1/(Re*Pr)*div(grad_T) + lift(tau_T2)- 0.5*u@ez = - u@grad(T)")
 problem.add_equation("T(y=+1)=0")
 problem.add_equation("T(y=-1)=T_bc")
 
