@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 flow_regime='laminar'
 if flow_regime=='laminar':
     Re=350
-    Ri=1    
+    Ri=0    
     dPdx = -2/Re
     Lx,Ly,Lz=(0.6*np.pi,2.0, 2*np.pi)
     nx,ny,nz=(8,64,48)
