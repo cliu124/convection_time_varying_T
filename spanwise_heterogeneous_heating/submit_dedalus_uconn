@@ -1,0 +1,30 @@
+#!/bin/bash
+###SBATCH --partition=debug
+#SBATCH --partition=general
+###SBATCH --partition=lo-core # This can be as long as 7 days
+###SBATCH --partition=priority
+###SBATCH --account=chl23026
+###SBATCH --qos=chl23026
+###SBATCH --qos=me_epyc #This is ME priority node, use either this or qos=chl23026
+###SBATCH --mail-user=firstname.lastname@uconn.edu      # Destination email address (Change to YOUR email)
+###SBATCH --mail-type=ALL                       # Event(s) that triggers email notification
+#SBATCH --constraint=epyc128 # This is optional
+#SBATCH --nodes=1
+#SBATCH --ntasks=16
+#SBATCH --time=12:00:00
+#SBATCH --job-name=dedalus
+#SBATCH --output=dedalus_output_%j
+export SLURM_EXPORT_ENV=ALL
+#export I_MPI_FABRICS=shm,tcp
+
+##the slurm number to restart simulation... This need full state to be stored.
+SUBMITDIR=$SLURM_SUBMIT_DIR
+WORKDIR=/scratch/chl23026/chl23026/dedalus_$SLURM_JOB_ID   #Modify the second 'chl23026' to YOUR NetID
+mkdir -p "$WORKDIR" && cp -r *.py "$WORKDIR" && cp submit_dedalus_uconn "$WORKDIR" && cd "$WORKDIR" || exit -1
+
+conda activate dedalus3
+
+mpiexec -n $SLURM_NTASKS python3 main_spanwise_heterogeneous_heating_laminar_yz.py
+
+cd "$SUBMITDIR" && cp dedalus_output_$SLURM_JOB_ID "$WORKDIR"
+

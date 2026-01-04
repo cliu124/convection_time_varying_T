@@ -2,11 +2,11 @@
 
 clc; close all; clear all;
 
-Re = 690;
-Ri = 1;
+Re = 350;
+Ri = 0;
 Pr=0.71;
 
-Ny = 16; Nz = 12;
+Ny = 32; Nz = 24;
 N = Ny*Nz;
 c_number = 1; % change from 96 to 12
 %grad_P = -2/Re*ones(N,1); % pressure gradient, vector not matrix
@@ -17,6 +17,9 @@ Lz=2*pi; %spanwise domain size. In default, we have Lz=2pi
 % omega = 1; % frequency
 kx_list = logspace(-4,0.48,kxn);
 c_list = linspace(0,1,c_number); % from 0 to 1
+
+% kx_list=0;
+% c_list=0;
 
 %get Fourier differentiation matrix
 [z,Dz] = fourdif(Nz,1); % first derivative z
@@ -36,7 +39,7 @@ D2 = DM(:,:,2);
 Iy = speye(size(D2)); %sparse identity matrix
 
 %Change this to your Dedalus data path for base state. 
-mean_data_path='\\wsl.localhost\Ubuntu\home\changliu\convection_time_varying_T\snapshots_channel\snapshots_channel_s1.h5';
+mean_data_path='\\wsl.localhost\Ubuntu\home\changliu\convection_time_varying_T\spanwise_heterogeneous_heating\snapshots_channel\snapshots_channel_s1.h5';
 
 %read x, y, z, and t coordinates for reading data. 
 x_dedalus=readDatasetByPrefix(mean_data_path,'/scales', 'x_hash_');
@@ -232,7 +235,7 @@ for kx_ind=1:length(kx_list) % 48
     C_tilde = weight*C ;
     B_tilde = B*inv_weight;
 
-    for c_index=1:c_number
+    for c_index=1:length(c_list)
 
         omega = -c_list(c_index)*kx;
 
@@ -262,6 +265,8 @@ fx_hat = real(reshape(result_V_svd{1,1}(1:N),Ny,Nz)); % Response mode
 fy_hat = real(reshape(result_V_svd{1,1}(N+1:2*N),Ny,Nz));
 fz_hat = real(reshape(result_V_svd{1,1}(2*N+1:3*N),Ny,Nz));
 fT_hat = real(reshape(result_V_svd{1,1}(3*N+1:4*N),Ny,Nz));
+
+save('IO_spanwise_heterogeneity.mat');
 
 
 % figure(1)

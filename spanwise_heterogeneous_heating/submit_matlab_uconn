@@ -1,0 +1,28 @@
+#!/bin/bash -l
+#SBATCH --job-name=matlab
+#SBATCH --time=12:00:00
+###SBATCH --partition=debug
+#SBATCH --partition=general # This can run up to 12 hours
+###SBATCH --partition=lo-core # This can be as long as 7 days
+###SBATCH --partition=priority # No time limit, needs to uncomment next two lines together. Priority in queue
+###SBATCH --account=chl23026
+###SBATCH --qos=chl23026
+#SBATCH --constraint=epyc128 # This is optional
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --mem=500G
+#SBATCH --output=matlab_history_%j
+
+#---------------------------------------------------------------------
+# SLURM job script to run serial MATLAB
+#---------------------------------------------------------------------
+
+SUBMITDIR=$SLURM_SUBMIT_DIR
+WORKDIR=/scratch/chl23026/chl23026/matlab_$SLURM_JOB_ID
+mkdir -p "$WORKDIR" && cp -r *.m "$WORKDIR" && cp submit_* "$WORKDIR" && cd "$WORKDIR" || exit -1
+
+module load matlab/R2022b
+
+matlab -nodisplay -nosplash -nodesktop -r "Input_output_spanwise_heterogeneous_heating"
+
+echo "matlab exit code: $?"

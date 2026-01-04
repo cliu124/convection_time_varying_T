@@ -42,7 +42,7 @@ Pr=0.71 #Prandtl number
 
 ##parameters for spanwise heterogeneous heating
 Delta_T=0.1# magnitude of spanwise heterogeneous heating
-kz_Delta_T=2*np.pi/Lz #wavelength of spanwise heterogeneous heating
+kz_Delta_T=2*2*np.pi/Lz #wavelength of spanwise heterogeneous heating
 
 #Ri_tau=120
 #A=0 #[0.1,0.2,0.3,0.4,0.5] pressure gradient oscillation amplitude
