@@ -122,8 +122,8 @@ problem.add_equation("trace(grad_u) + tau_p = 0")
 #problem.add_equation("T(y=-1)=0")
 
 #decomposed temperature version
-problem.add_equation("dt(u) - 1/Re*div(grad_u) + grad(p) + lift(tau_u2)-Ri*T*ez=-dPdx*ex -dot(u,grad(u))")
-problem.add_equation("dt(T) - 1/(Re*Pr)*div(grad_T) + lift(tau_T2)- 0.5*u@ez = - u@grad(T)")
+problem.add_equation("dt(u) - 1/Re*div(grad_u) + grad(p) + lift(tau_u2)-Ri*T*ey=-dPdx*ex -dot(u,grad(u))")
+problem.add_equation("dt(T) - 1/(Re*Pr)*div(grad_T) + lift(tau_T2)- 0.5*u@ey = - u@grad(T)") #Note that buoyancy related should be in y vertical direction
 problem.add_equation("T(y=+1)=0")
 problem.add_equation("T(y=-1)=T_bc")
 

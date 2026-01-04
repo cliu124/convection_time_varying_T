@@ -3,7 +3,7 @@
 clc; close all; clear all;
 
 Re = 350;
-Ri = 0;
+Ri = 1;
 Pr=0.71;
 
 Ny = 32; Nz = 24;
@@ -157,7 +157,7 @@ for kx_ind=1:length(kx_list) % 48
 
     %temperature equation
     A51 = Z;
-    A52 = -diag(mean_IO_vec.dTdy)-0.5*I;
+    A52 = -diag(mean_IO_vec.dTdy)+0.5*I; %change the sign before 0.5*I to make it unstable stratified. 
     A53 = -diag(mean_IO_vec.dTdz);
     A54 = Z;
     A55 = L_A + 1/(Re*Pr)*laplacian;
