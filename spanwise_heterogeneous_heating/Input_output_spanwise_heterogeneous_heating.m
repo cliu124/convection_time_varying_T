@@ -6,12 +6,12 @@ Re = 350;
 Ri = 1;
 Pr=0.71;
 
-Ny = 32; Nz = 24;
+Ny = 96; Nz = 84;
 N = Ny*Nz;
-c_number = 1; % change from 96 to 12
+c_number = 8; % change from 96 to 12
 %grad_P = -2/Re*ones(N,1); % pressure gradient, vector not matrix
 
-kxn = 1; %sample points of kx. 
+kxn = 10; %sample points of kx. 
 Lz=2*pi; %spanwise domain size. In default, we have Lz=2pi
 
 % omega = 1; % frequency
@@ -39,7 +39,10 @@ D2 = DM(:,:,2);
 Iy = speye(size(D2)); %sparse identity matrix
 
 %Change this to your Dedalus data path for base state. 
-mean_data_path='\\wsl.localhost\Ubuntu\home\changliu\convection_time_varying_T\spanwise_heterogeneous_heating\snapshots_channel\snapshots_channel_s1.h5';
+%mean_data_path='\\wsl.localhost\Ubuntu\home\changliu\convection_time_varying_T\spanwise_heterogeneous_heating\snapshots_channel\snapshots_channel_s1.h5';
+
+%mean data path on UConn HPC
+mean_data_path='/scratch/chl23026/chl23026/dedalus_21916409/snapshots_channel/snapshots_channel_s1.h5';
 
 %read x, y, z, and t coordinates for reading data. 
 x_dedalus=readDatasetByPrefix(mean_data_path,'/scales', 'x_hash_');
@@ -120,6 +123,27 @@ DM_2D.Dy=kron(Iz,D1);
 DM_2D.Dyy=kron(Iz,D2);
 DM_2D.Dz=kron(Dz,Iy);
 DM_2D.Dzz=kron(Dzz,Iy);
+
+% ---- Robust parallel setup: prefer threads; safe up to 4 workers ----
+delete(gcp('nocreate'));
+
+% Respect SLURM cpus-per-task; cap at 4
+slurm_cpt = str2double(getenv('SLURM_CPUS_PER_TASK'));
+if isnan(slurm_cpt) || isempty(slurm_cpt), slurm_cpt = 8; end
+nworkers = max(1, min(4, slurm_cpt));
+
+% Prevent nested threading inside each worker (important!)
+setenv('OMP_NUM_THREADS', '1');
+setenv('MKL_NUM_THREADS', '1');
+maxNumCompThreads(nworkers);   % optional: hint MATLAB BLAS limit
+
+try
+    parpool('threads', nworkers);
+catch
+    warning('Thread pool unavailable; continuing in serial.');
+end
+
+
 
 for kx_ind=1:length(kx_list) % 48
 
@@ -259,7 +283,7 @@ for kx_ind=1:length(kx_list) % 48
     C_tilde = weight*C ;
     B_tilde = B*inv_weight;
 
-    for c_index=1:length(c_list)
+    parfor c_index=1:length(c_list)
 
         omega = -c_list(c_index)*kx;
 
