@@ -39,10 +39,11 @@ D2 = DM(:,:,2);
 Iy = speye(size(D2)); %sparse identity matrix
 
 %Change this to your Dedalus data path for base state. 
-%mean_data_path='\\wsl.localhost\Ubuntu\home\changliu\convection_time_varying_T\spanwise_heterogeneous_heating\snapshots_channel\snapshots_channel_s1.h5';
+% mean_data_path='\\wsl.localhost\Ubuntu\home\changliu\convection_time_varying_T\spanwise_heterogeneous_heating\snapshots_channel\snapshots_channel_s1.h5';
+% mean_data_path='E:\Data\dedalus_spanwise_heterogeneous\dedalus_21922119\snapshots_channel\snapshots_channel_s2.h5';
 
 %mean data path on UConn HPC
-mean_data_path='/scratch/chl23026/chl23026/dedalus_21916409/snapshots_channel/snapshots_channel_s1.h5';
+mean_data_path='/scratch/chl23026/chl23026/dedalus_21922119/snapshots_channel/snapshots_channel_s1.h5';
 
 %read x, y, z, and t coordinates for reading data. 
 x_dedalus=readDatasetByPrefix(mean_data_path,'/scales', 'x_hash_');
@@ -51,12 +52,17 @@ z_dedalus=readDatasetByPrefix(mean_data_path,'/scales', 'z_hash_');
 t=h5read(mean_data_path,'/scales/sim_time');
 
 %read the u(x,y,z) at the last time step from Dedalus data
-U_all_mean=h5read(mean_data_path,'/tasks/u',[1,1,1,1,length(t)],[length(z_dedalus),length(y_dedalus),length(x_dedalus),3,1]);
+
+t_read_length=100;
+
+U_all_mean=h5read(mean_data_path,'/tasks/u',[1,1,1,1,length(t)-t_read_length+1],[length(z_dedalus),length(y_dedalus),length(x_dedalus),3,t_read_length]);
+
+%U_all_mean_history=h5read(mean_data_path,'/tasks/u',[1,1,1,1,length(t)-t_read_length+1],[length(z_dedalus),length(y_dedalus),length(x_dedalus),3,t_read_length]);
 
 %Get each component of velocity and perform average in x. 
-mean_dedalus.u=mean(U_all_mean(:,:,:,1,end),3);
-mean_dedalus.v=mean(U_all_mean(:,:,:,2,end),3);
-mean_dedalus.w=mean(U_all_mean(:,:,:,3,end),3);
+mean_dedalus.u=mean(mean(U_all_mean(:,:,:,1,:),5),3);
+mean_dedalus.v=mean(mean(U_all_mean(:,:,:,2,:),5),3);
+mean_dedalus.w=mean(mean(U_all_mean(:,:,:,3,:),5),3);
 
 field_list={'dudy','dudz','dvdy','dvdz','dwdy','dwdz','dTdy','dTdz'};
 
@@ -64,10 +70,10 @@ for field_ind=1:length(field_list)
     field_name=field_list{field_ind};
 
     %read the 3D spatial data at the last time step from Dedalus data
-    mean_dedalus.(field_name)=h5read(mean_data_path,['/tasks/',field_name],[1,1,1,length(t)],[length(z_dedalus),length(y_dedalus),length(x_dedalus),1]);
+    mean_dedalus.(field_name)=h5read(mean_data_path,['/tasks/',field_name],[1,1,1,length(t)-t_read_length+1],[length(z_dedalus),length(y_dedalus),length(x_dedalus),t_read_length]);
 
     %perform average over streamwise and take the moment in time.
-    mean_dedalus.(field_name)=mean(mean_dedalus.(field_name)(:,:,:,end),3);
+    mean_dedalus.(field_name)=mean(mean(mean_dedalus.(field_name)(:,:,:,:),4),3);
 end
 
 %interpolate data to new mesh obtained from fourdif and chebdif. They are
@@ -130,7 +136,8 @@ delete(gcp('nocreate'));
 % Respect SLURM cpus-per-task; cap at 4
 slurm_cpt = str2double(getenv('SLURM_CPUS_PER_TASK'));
 if isnan(slurm_cpt) || isempty(slurm_cpt), slurm_cpt = 8; end
-nworkers = max(1, min(4, slurm_cpt));
+nworkers = max(4,slurm_cpt);
+%nworkers = max(1, min(4, slurm_cpt));
 
 % Prevent nested threading inside each worker (important!)
 setenv('OMP_NUM_THREADS', '1');
