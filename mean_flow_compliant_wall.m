@@ -1,41 +1,32 @@
-clear all;
-close all;
+clear all
+close all
+clc;
 
 folder_path='E:\Data\dedalus_turbulent_channel';
-% folder_path='E:\Data\dedalus';
 
-%slurm_list={'10249087'};
-slurm_list={'12143894'};
-%slurm_list={'10611110'};
+slurm_list={'10439614','12143532','12143894'};
 
-stress_list={'u_prime_u_prime',...
+
+stress_list={'u_bar',...
+    'u_prime_u_prime',...
     'v_prime_v_prime',...
     'w_prime_w_prime',...
-    'u_prime_v_prime',...
-    'u_bar',...
-    'T_prime_T_prime',...
-    'u_prime_T_prime',...
-    'v_prime_T_prime',...
-    'w_prime_T_prime',...
-    'T_bar'};
-stress_label_list={'$\langle u''u''\rangle $',...
+    'u_prime_v_prime'};
+
+stress_list={'u_bar'};
+
+stress_label_list={'$\bar{u}$',...
+    '$\langle u''u''\rangle $',...
     '$\langle v''v''\rangle$',...
     '$\langle w''w''\rangle$',...
-    '$\langle u''v''\rangle$',...
-    '$\bar{u}$',...
-    '$\langle T''T''\rangle$',...
-    '$\langle u''T''\rangle$',...
-    '$\langle v''T''\rangle$',...
-    '$\langle w''T''\rangle$',...
-    '$\bar{T}$'};
+    '$\langle u''v''\rangle$'};
+
+stress_label_list={'$\bar{u}$'};
 
 Re_tau=180;
-
-% Re_tau=395;
-
-% average_range=[800,931];
-% average_range=[1,4000];
 average_range=[150,297];
+
+
 for slurm_ind=1:length(slurm_list)
     % data{slurm_ind}.y=squeeze(h5read([folder_path,'\dedalus_',slurm_list{slurm_ind},'\snapshots_channel_stress\snapshots_channel_stress_s1.h5'],['/scales/']));
     h5name=[folder_path,'\dedalus_',slurm_list{slurm_ind},'\snapshots_channel_stress\snapshots_channel_stress_s1.h5'];
@@ -48,10 +39,15 @@ for slurm_ind=1:length(slurm_list)
 
         data_plot{1}.x=data{slurm_ind}.y;
         data_plot{1}.y=mean(data{slurm_ind}.(stress_list{stress_ind})(:,average_range),2); 
+        
+        %data_plot_all{slurm_ind}.x=data{slurm_ind}.y;
+        %data_plot_all{slurm_ind}.y=mean(data{slurm_ind}.(stress_list{stress_ind})(:,average_range),2); 
         %if ~strcmp(stress_list{stress_ind},'T_bar')
         %     data_plot = add_DNS_stress_literature(data_plot,stress_list{stress_ind},Re_tau);
         % end
         data_plot = add_DNS_stress_literature(data_plot,stress_list{stress_ind},Re_tau);
+
+        %data_plot_all = add_DNS_stress_literature(data_plot_all,stress_list{stress_ind},Re_tau);
 
         plot_config.label_list={1,'y',stress_label_list{stress_ind}}; 
         plot_config.Markerindex=3;
@@ -79,6 +75,44 @@ for slurm_ind=1:length(slurm_list)
     
 end
 
+for stress_ind=1:length(stress_list)
+    for slurm_ind=1:length(slurm_list)
+
+        data_plot_all{slurm_ind}.x=data{slurm_ind}.y;
+        data_plot_all{slurm_ind}.y=mean(data{slurm_ind}.(stress_list{stress_ind})(:,average_range),2);
+
+    end
+
+    plot_config.label_list={1,'y',stress_label_list{stress_ind}};
+    plot_config.Markerindex=3;
+    plot_config.user_color_style_marker_list={'k-','b-.','r--','ko'};
+    % plot_config.legend_list={1,'Rigid','Compliant 1','Compliant 2','KMM (1987)'};
+    plot_config.legend_list={1,'Rigid','Compliant 1','Compliant 2'};
+
+    plot_config.name=['./compliant_wall/',stress_list{stress_ind},'.png'];
+    plot_config.xlim_list = [1,-1,1];
+    plot_config.loglog = [0,0];
+
+    plot_config.linewidth=3;
+    plot_line(data_plot_all,plot_config);
+    data_plot_all_log = data_plot_all;
+
+    for data_ind=1:length(data_plot_all_log)
+        data_plot_all_log{data_ind}.x = Re_tau*(1+data_plot_all_log{data_ind}.x);
+    end
+    data_plot_all_log = add_DNS_stress_literature(data_plot_all_log,stress_list{stress_ind},Re_tau);
+
+    plot_config.xlim_list = [1,1,Re_tau];
+    plot_config.loglog = [1,0];
+    plot_config.label_list={1,'$y^+$','$U(y)$'};
+    plot_config.legend_list={1,'Rigid','Compliant 1','Compliant 2','KMM (1987)'};
+
+    plot_config.name=['./compliant_wall/',stress_list{stress_ind},'_log.png'];
+    plot_line(data_plot_all_log,plot_config);
+
+end
+
+
 function data = readDatasetByPrefix(filename, groupPath, prefix)
 % readDatasetByPrefix  Read dataset from an HDF5 group by matching prefix
 %
@@ -104,10 +138,54 @@ function data = readDatasetByPrefix(filename, groupPath, prefix)
     error('No dataset starting with "%s" found in %s.', prefix, groupPath);
 end
 
+
+
+
 function data=add_DNS_stress_literature(data,stress_name,Re_tau)
     switch Re_tau
         case {180,150}
             switch stress_name
+                case 'u_bar'
+                    % 
+                    % u_bar=
+                    % 
+                    u_bar=[1.11489	1.14139
+                    1.54168	1.58307
+                    1.99811	1.98028
+                    2.40987	2.3768
+                    2.97018	2.9051
+                    3.431	3.34508
+                    3.7956	3.69691
+                    4.29098	4.18054
+                    4.8862	4.70809
+                    5.44499	5.19158
+                    6.02419	5.675
+                    6.71355	6.24621
+                    7.53629	6.9052
+                    8.39895	7.52027
+                    9.49693	8.26705
+                    10.816	9.0139
+                    12.498	9.89247
+                    13.9282	10.4637
+                    15.748	11.1227
+                    18.1953	11.8697
+                    21.1734	12.5291
+                    24.4615	13.1445
+                    27.8529	13.5843
+                    32.4076	14.0682
+                    38.8106	14.6401
+                    48.8797	15.2125
+                    58.5317	15.6528
+                    72.6665	16.2689
+                    95.5662	16.9733
+                    111.99	17.3695
+                    147.277	18.03
+                    166.467	18.2505];
+
+                    data_len=length(data);
+                    data{data_len+1}.x=u_bar(:,1);
+                    data{data_len+1}.y=u_bar(:,2);
+
                 case 'u_prime_u_prime'
                     %Kim J, Moin P, Moser R. Turbulence statistics in fully developed channel flow at low Reynolds number. Journal of fluid mechanics. 1987 Apr;177:133-66.
                     %Re_tau=180
